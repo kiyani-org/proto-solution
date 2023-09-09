@@ -6,11 +6,21 @@ current_dir=$1
 # Get the name of the new directory
 new_dir_name=$2
 
+# Name of the folder where raw protos exist
 protos_prefix=protos/
 
 # Create the new directory if it doesn't exist
 if [ ! -d $new_dir_name ]; then
   mkdir -p $new_dir_name
+fi
+
+# Check if the go.mod exists
+if [ ! -f "$new_dir_name/go.mod" ]; then
+  # Create the file
+  echo "init go module"
+  cd "$new_dir_name"
+  go mod init github.com/kiyani-org/proto-solution
+  cd ../..
 fi
 
 # Recursively loop through the current directory and its subdirectories
@@ -24,7 +34,8 @@ function copy_files() {
 
       # Copy the file_or_dir to the new directory
       echo "copying ($file_or_dir) to ($new_dir_name/$trimmed_path)"
-      cp "$file_or_dir" "$new_dir_name/$trimmed_path"
+      # cp "$file_or_dir" "$new_dir_name/$trimmed_path"
+      export PATH="$PATH:$(go env GOPATH)/bin" && protoc --go_out=$new_dir_name $file_or_dir
     elif [ -d "$file_or_dir" ]; then
       echo "mkdir ($new_dir_name/$trimmed_path)"
 
@@ -37,3 +48,6 @@ function copy_files() {
 
 # Copy the files from the current directory to the new directory
 copy_files $current_dir
+
+cd gen/go
+go mod tidy

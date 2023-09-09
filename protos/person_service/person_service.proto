@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package person.v1;
 
-option go_package = "github.com/kiyani-org/proto-solution/gen/go/person/v1";
+option go_package = "github.com/kiyani-org/proto-solution/person/v1";
 
 message Person {
   string name = 1;
