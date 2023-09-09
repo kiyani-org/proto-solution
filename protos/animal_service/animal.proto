@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+package v1.animal;
+
+option go_package = "github.com/kiyani-org/proto-solution/v1/animal;animalpb";
+
+message Animal {
+  string classification = 1;
+  int32 id = 2;
+}
