@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package v1.animal.dog;
+package dog.v1;
 
 option go_package = "github.com/kiyani-org/proto-solution/v1/animal/dog;dogpb";
 
