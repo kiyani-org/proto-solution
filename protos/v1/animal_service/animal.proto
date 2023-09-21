@@ -5,6 +5,6 @@ package animal.v1;
 option go_package = "github.com/kiyani-org/proto-solution/v1/animal;animalpb";
 
 message Animal {
-  string classification = 1;
-  int32 id = 2;
+  string Classification = 1;
+  int32  id             = 2;
 }

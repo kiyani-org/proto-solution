@@ -1,0 +1,31 @@
+name: 'proto-lint'
+
+on:
+  workflow_call:
+
+jobs:
+  prototool:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 'Checkout'
+        uses: 'actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9' # ratchet:actions/checkout@v3
+
+      - name: 'Install Prototool'
+      # TODO consider hardcoding
+        run: |
+          curl -sSL \
+          https://github.com/uber/prototool/releases/download/v1.10.0/prototool-$(uname -s)-$(uname -m) \
+          -o /usr/local/bin/prototool && \
+          chmod +x /usr/local/bin/prototool
+
+      # - name: ''
+      #   run: 
+
+      - name: 'Lint proto files'
+        run: |
+          LINTER_OUTPUT=$(echo $(prototool lint protos))
+          if ! [[ -z "${LINTER_OUTPUT}" ]]; then
+            echo ${LINTER_OUTPUT}
+            exit 1
+          fi

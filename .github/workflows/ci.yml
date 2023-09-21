@@ -16,5 +16,3 @@ concurrency:
 jobs:
   proto-lint:
     uses: './.github/workflows/proto-lint.yml'
-    with:
-      go_version: '1.21'
