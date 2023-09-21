@@ -1,0 +1,20 @@
+name: 'ci'
+
+on:
+  push:
+    branches:
+      - 'main'
+  pull_request:
+    branches:
+      - 'main'
+  workflow_dispatch:
+
+concurrency:
+  group: '${{ github.workflow }}-${{ github.head_ref || github.ref }}'
+  cancel-in-progress: true
+
+jobs:
+  proto-lint:
+    uses: './.github/workflows/proto-lint.yml'
+    with:
+      go_version: '1.21'

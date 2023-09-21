@@ -3,7 +3,7 @@
 function execute_protoc() {
   dest_root_dir=$1
   file_or_dir=$2
-  lang=$3
+  lang=$(basename "$dest_root_dir")
   case $lang in
     go)
       export PATH="$PATH:$(go env GOPATH)/bin" && protoc --go_out=$dest_root_dir $file_or_dir 
