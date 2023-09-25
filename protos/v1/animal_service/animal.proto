@@ -2,9 +2,12 @@ syntax = "proto3";
 
 package animal.v1;
 
-option go_package = "github.com/kiyani-org/proto-solution/v1/animal;animalpb";
+option go_package          = "github.com/kiyani-org/proto-solution/v1/animal;animalpb";
+option java_multiple_files = true;
+option java_package        = "com.uber.prototool.generated";
 
 message Animal {
-  string Classification = 1;
+  string classification = 1;
   int32  id             = 2;
+  string name           = 3;
 }
