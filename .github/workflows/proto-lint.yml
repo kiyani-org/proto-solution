@@ -19,11 +19,11 @@ jobs:
 
       - name: 'Install Protobuf'
         run: |
-          sudo apt install protobuf-compiler          
+          sudo apt install -y protobuf-compiler
 
-      - name: Install protoc-gen-go
-        run: |
-          go get google.golang.org/protobuf/cmd/protoc-gen-go@1.28
+      # - name: Install protoc-gen-go
+      #   run: |
+      #     go install google.golang.org/protobuf/cmd/protoc-gen-go@1.28
 
       - name: 'Install Prototool'
       # TODO consider hardcoding
@@ -37,6 +37,7 @@ jobs:
         run: |
           LINTER_OUTPUT=$(echo $(prototool lint protos))
           if ! [[ -z "${LINTER_OUTPUT}" ]]; then
+            echo "ERROR: linter errors were found:"
             echo ${LINTER_OUTPUT}
             exit 1
           fi
@@ -46,6 +47,6 @@ jobs:
           chmod +x ./scripts/generate.sh && ./scripts/generate.sh
           GIT_DIFF=$(git diff --name-only)
           if ! [[ -z "${GIT_DIFF}" ]]; then
-            echo "Generated proto files are out of sync, re-run script to reflect latest state"
+            echo "ERROR: Generated proto files are out of sync, re-run script to reflect latest state"
             exit 1
           fi
