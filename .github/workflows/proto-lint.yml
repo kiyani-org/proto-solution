@@ -19,13 +19,18 @@ jobs:
           -o /usr/local/bin/prototool && \
           chmod +x /usr/local/bin/prototool
 
-      # - name: ''
-      #   run: 
-
       - name: 'Lint proto files'
         run: |
           LINTER_OUTPUT=$(echo $(prototool lint protos))
           if ! [[ -z "${LINTER_OUTPUT}" ]]; then
             echo ${LINTER_OUTPUT}
+            exit 1
+          fi
+
+      - name: 'Generate proto files'
+        run: |
+          GIT_DIFF=$(git diff --name-only)
+          if ! [[ -z "${GIT_DIFF}" ]]; then
+            echo "Generated proto files are out of sync, re-run script to reflect latest state"
             exit 1
           fi
