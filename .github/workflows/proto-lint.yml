@@ -29,6 +29,7 @@ jobs:
 
       - name: 'Generate proto files'
         run: |
+          chmod +x ./scripts/generate.sh && ./scripts/generate.sh
           GIT_DIFF=$(git diff --name-only)
           if ! [[ -z "${GIT_DIFF}" ]]; then
             echo "Generated proto files are out of sync, re-run script to reflect latest state"
