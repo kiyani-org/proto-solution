@@ -29,7 +29,6 @@ jobs:
 
       - name: 'Generate proto files'
         run: |
-          export PATH="$PATH:$(go env GOPATH)/bin"
           chmod +x ./scripts/generate.sh && ./scripts/generate.sh
           GIT_DIFF=$(git diff --name-only)
           if ! [[ -z "${GIT_DIFF}" ]]; then
