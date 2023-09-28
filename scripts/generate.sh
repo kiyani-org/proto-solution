@@ -4,9 +4,10 @@ function execute_protoc() {
   dest_root_dir=$1
   file_or_dir=$2
   lang=$(basename "$dest_root_dir")
+  export PATH=$PATH:$(go env GOPATH)/bin
   case $lang in
     go)
-      export PATH="$PATH:$(go env GOPATH)/bin" && protoc --go_out=$dest_root_dir $file_or_dir 
+      protoc --go_out=$dest_root_dir $file_or_dir 
       ;;
     ts)
       protoc --plugin=$dest_root_dir/node_modules/.bin/protoc-gen-ts_proto \

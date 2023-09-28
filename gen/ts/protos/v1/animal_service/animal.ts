@@ -6,10 +6,11 @@ export const protobufPackage = "animal.v1";
 export interface Animal {
   classification: string;
   id: number;
+  name: string;
 }
 
 function createBaseAnimal(): Animal {
-  return { classification: "", id: 0 };
+  return { classification: "", id: 0, name: "" };
 }
 
 export const Animal = {
@@ -19,6 +20,9 @@ export const Animal = {
     }
     if (message.id !== 0) {
       writer.uint32(16).int32(message.id);
+    }
+    if (message.name !== "") {
+      writer.uint32(26).string(message.name);
     }
     return writer;
   },
@@ -44,6 +48,13 @@ export const Animal = {
 
           message.id = reader.int32();
           continue;
+        case 3:
+          if (tag !== 26) {
+            break;
+          }
+
+          message.name = reader.string();
+          continue;
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -57,6 +68,7 @@ export const Animal = {
     return {
       classification: isSet(object.classification) ? String(object.classification) : "",
       id: isSet(object.id) ? Number(object.id) : 0,
+      name: isSet(object.name) ? String(object.name) : "",
     };
   },
 
@@ -68,6 +80,9 @@ export const Animal = {
     if (message.id !== 0) {
       obj.id = Math.round(message.id);
     }
+    if (message.name !== "") {
+      obj.name = message.name;
+    }
     return obj;
   },
 
@@ -78,6 +93,7 @@ export const Animal = {
     const message = createBaseAnimal();
     message.classification = object.classification ?? "";
     message.id = object.id ?? 0;
+    message.name = object.name ?? "";
     return message;
   },
 };
