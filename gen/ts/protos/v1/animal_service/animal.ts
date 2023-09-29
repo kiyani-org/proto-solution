@@ -7,10 +7,11 @@ export interface Animal {
   classification: string;
   id: number;
   name: string;
+  foo: string;
 }
 
 function createBaseAnimal(): Animal {
-  return { classification: "", id: 0, name: "" };
+  return { classification: "", id: 0, name: "", foo: "" };
 }
 
 export const Animal = {
@@ -23,6 +24,9 @@ export const Animal = {
     }
     if (message.name !== "") {
       writer.uint32(26).string(message.name);
+    }
+    if (message.foo !== "") {
+      writer.uint32(34).string(message.foo);
     }
     return writer;
   },
@@ -55,6 +59,13 @@ export const Animal = {
 
           message.name = reader.string();
           continue;
+        case 4:
+          if (tag !== 34) {
+            break;
+          }
+
+          message.foo = reader.string();
+          continue;
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -66,9 +77,10 @@ export const Animal = {
 
   fromJSON(object: any): Animal {
     return {
-      classification: isSet(object.classification) ? String(object.classification) : "",
-      id: isSet(object.id) ? Number(object.id) : 0,
-      name: isSet(object.name) ? String(object.name) : "",
+      classification: isSet(object.classification) ? globalThis.String(object.classification) : "",
+      id: isSet(object.id) ? globalThis.Number(object.id) : 0,
+      name: isSet(object.name) ? globalThis.String(object.name) : "",
+      foo: isSet(object.foo) ? globalThis.String(object.foo) : "",
     };
   },
 
@@ -83,6 +95,9 @@ export const Animal = {
     if (message.name !== "") {
       obj.name = message.name;
     }
+    if (message.foo !== "") {
+      obj.foo = message.foo;
+    }
     return obj;
   },
 
@@ -94,6 +109,7 @@ export const Animal = {
     message.classification = object.classification ?? "";
     message.id = object.id ?? 0;
     message.name = object.name ?? "";
+    message.foo = object.foo ?? "";
     return message;
   },
 };
@@ -101,7 +117,8 @@ export const Animal = {
 type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
 
 export type DeepPartial<T> = T extends Builtin ? T
-  : T extends Array<infer U> ? Array<DeepPartial<U>> : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
+  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
+  : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
   : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;
 

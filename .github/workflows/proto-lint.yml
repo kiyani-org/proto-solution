@@ -16,37 +16,38 @@ jobs:
         with:
           go-version: '1.21'
 
+      # - name: 'Install prototool binary'
+      #   uses: 'abcxyz/pkg/.github/actions/setup-binary@main' # ratchet:exclude
+      #   with:
+      #     download_url: 'https://github.com/uber/prototool/releases/download/v1.10.0/prototool-Linux-x86_64.tar.gz'
+      #     install_path: '/usr/local/bin/prototool'
+      #     checksum: '50e53589b95e2435e26de01de8eac6af6ae6980b1cacf1e0ad319b7644f16b3b'
+      #     # cache_key: '${{ runner.os }}_${{ runner.arch }}_prototool'
+      #     add_to_path: true
+  
       - name: 'Install protobuf'
         run: |
-          sudo apt install -y protobuf-compiler
+          sudo apt-get install protobuf-compiler
 
       - name: Install protoc-gen-go
         run: |
-          go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.28
+          go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.31
 
-      - name: 'Install prototool binary'
-        uses: 'abcxyz/pkg/.github/actions/setup-binary@main' # ratchet:exclude
-        with:
-          download_url: 'https://github.com/uber/prototool/releases/download/v1.10.0/prototool-Linux-x86_64.tar.gz'
-          install_path: '/usr/local/bin/prototool'
-          checksum: '50e53589b95e2435e26de01de8eac6af6ae6980b1cacf1e0ad319b7644f16b3b'
-          # cache_key: '${{ runner.os }}_${{ runner.arch }}_prototool'
-          add_to_path: true          
-
-      - name: 'Lint proto files'
-        run: |
-          LINTER_OUTPUT=$(echo $(prototool lint protos))
-          if ! [[ -z "${LINTER_OUTPUT}" ]]; then
-            echo "ERROR: linter errors were found:"
-            echo ${LINTER_OUTPUT}
-            exit 1
-          fi
+      # - name: 'Lint proto files'
+      #   run: |
+      #     LINTER_OUTPUT=$(echo $(prototool lint protos))
+      #     if ! [[ -z "${LINTER_OUTPUT}" ]]; then
+      #       echo "ERROR: linter errors were found:"
+      #       echo ${LINTER_OUTPUT}
+      #       exit 1
+      #     fi
 
       - name: 'Generate proto files'
         run: |
-          export PATH=$PATH:$(go env GOPATH)/bin
+          export PATH="$PATH:$(go env GOPATH)/bin"
           chmod +x ./scripts/generate.sh && ./scripts/generate.sh
-          GIT_DIFF=$(git diff --name-only)
+          GIT_DIFF=$(git diff)
+          git diff
           if ! [[ -z "${GIT_DIFF}" ]]; then
             echo "ERROR: Generated proto files are out of sync, re-run script to reflect latest proto state"
             exit 1

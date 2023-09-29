@@ -10,4 +10,5 @@ message Animal {
   string classification = 1;
   int32  id             = 2;
   string name           = 3;
+  string foo            = 4;
 }
