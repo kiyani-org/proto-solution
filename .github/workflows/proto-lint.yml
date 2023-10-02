@@ -3,6 +3,11 @@ name: 'proto-lint'
 on:
   workflow_call:
 
+env:
+  PROTOTOOL_VERSION : 'v1.10.0'
+  PROTOBUF_VERSION : '24.3'
+
+
 jobs:
   prototool:
     runs-on: ubuntu-latest
@@ -15,36 +20,57 @@ jobs:
         uses: 'actions/setup-go@fac708d6674e30b6ba41289acaab6d4b75aa0753' # ratchet:actions/setup-go@v4
         with:
           go-version: '1.21'
-
-      # - name: 'Install prototool binary'
-      #   uses: 'abcxyz/pkg/.github/actions/setup-binary@main' # ratchet:exclude
-      #   with:
-      #     download_url: 'https://github.com/uber/prototool/releases/download/v1.10.0/prototool-Linux-x86_64.tar.gz'
-      #     install_path: '/usr/local/bin/prototool'
-      #     checksum: '50e53589b95e2435e26de01de8eac6af6ae6980b1cacf1e0ad319b7644f16b3b'
-      #     # cache_key: '${{ runner.os }}_${{ runner.arch }}_prototool'
-      #     add_to_path: true
   
+      # - name: "list"
+      #   run: |
+      #     sudo apt list -a protobuf-compiler
+
+      # - name: 'Install protobuf'
+      #   run: |
+      #     sudo apt-get install protobuf-compiler=24.3-1ubuntu7.22.04.1
+      #     protoc --version
+
       - name: 'Install protobuf'
+        uses: 'abcxyz/pkg/.github/actions/setup-binary@main' # ratchet:exclude
+        with:
+          # download_url: 'https://github.com/protocolbuffers/protobuf/releases/download/v${{ env.PROTOBUF_VERSION }}/protoc-${{ env.PROTOBUF_VERSION }}-linux-x86_64.zip'
+          download_url: 'https://github.com/protocolbuffers/protobuf/releases/download/v${{ env.PROTOBUF_VERSION }}/protobuf-${{ env.PROTOBUF_VERSION }}.tar.gz'
+          install_path: '${{ runner.temp }}/.protoc'
+          checksum: '07d69502e58248927b58c7d7e7424135272ba5b2852a753ab6b67e62d2d29355'
+          cache_key: '${{ runner.os }}_${{ runner.arch }}_protoc'
+          add_to_path: true
+
+      - name: "check protoc version"
         run: |
-          sudo apt-get install protobuf-compiler
+          ls -ltra ${{ runner.temp }}/.protoc/bin
+          ${{ runner.temp }}/.protoc/bin/protoc --version
 
       - name: Install protoc-gen-go
         run: |
           go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.31
 
-      # - name: 'Lint proto files'
-      #   run: |
-      #     LINTER_OUTPUT=$(echo $(prototool lint protos))
-      #     if ! [[ -z "${LINTER_OUTPUT}" ]]; then
-      #       echo "ERROR: linter errors were found:"
-      #       echo ${LINTER_OUTPUT}
-      #       exit 1
-      #     fi
+      - name: 'Install prototool binary'
+        uses: 'abcxyz/pkg/.github/actions/setup-binary@main' # ratchet:exclude
+        with:
+          download_url: 'https://github.com/uber/prototool/releases/download/${{ env.PROTOTOOL_VERSION }}/prototool-Linux-x86_64.tar.gz'
+          install_path: '${{ runner.temp }}/.prototool'
+          # checksum: '50e53589b95e2435e26de01de8eac6af6ae6980b1cacf1e0ad319b7644f16b3b'
+          cache_key: '${{ runner.os }}_${{ runner.arch }}_prototool_${{ env.PROTOTOOL_VERSION }}'
+          add_to_path: true          
+
+      - name: 'Lint proto files'
+        run: |
+          LINTER_OUTPUT=$(echo $(prototool lint protos))
+          if ! [[ -z "${LINTER_OUTPUT}" ]]; then
+            echo "ERROR: linter errors were found:"
+            echo ${LINTER_OUTPUT}
+            exit 1
+          fi
 
       - name: 'Generate proto files'
         run: |
-          export PATH="$PATH:$(go env GOPATH)/bin"
+          # add protoc to the path
+          export PATH="$PATH:${{ runner.temp }}/.protoc/bin"
           chmod +x ./scripts/generate.sh && ./scripts/generate.sh
           GIT_DIFF=$(git diff)
           git diff
