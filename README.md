@@ -21,6 +21,7 @@ Must have `protoc-gen-go` installed.
 
 ```
   go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.28
+  export PATH="$PATH:$(go env GOPATH)/bin" 
 ```
 
 ## Node (Typescript)

@@ -7,7 +7,6 @@ env:
   PROTOTOOL_VERSION : 'v1.10.0'
   PROTOBUF_VERSION : '24.3'
 
-
 jobs:
   prototool:
     runs-on: ubuntu-latest
@@ -20,30 +19,15 @@ jobs:
         uses: 'actions/setup-go@fac708d6674e30b6ba41289acaab6d4b75aa0753' # ratchet:actions/setup-go@v4
         with:
           go-version: '1.21'
-  
-      # - name: "list"
-      #   run: |
-      #     sudo apt list -a protobuf-compiler
-
-      # - name: 'Install protobuf'
-      #   run: |
-      #     sudo apt-get install protobuf-compiler=24.3-1ubuntu7.22.04.1
-      #     protoc --version
 
       - name: 'Install protobuf'
         uses: 'abcxyz/pkg/.github/actions/setup-binary@main' # ratchet:exclude
         with:
-          # download_url: 'https://github.com/protocolbuffers/protobuf/releases/download/v${{ env.PROTOBUF_VERSION }}/protoc-${{ env.PROTOBUF_VERSION }}-linux-x86_64.zip'
           download_url: 'https://github.com/protocolbuffers/protobuf/releases/download/v${{ env.PROTOBUF_VERSION }}/protobuf-${{ env.PROTOBUF_VERSION }}.tar.gz'
           install_path: '${{ runner.temp }}/.protoc'
           checksum: '07d69502e58248927b58c7d7e7424135272ba5b2852a753ab6b67e62d2d29355'
           cache_key: '${{ runner.os }}_${{ runner.arch }}_protoc'
           add_to_path: true
-
-      - name: "check protoc version"
-        run: |
-          ls -ltra ${{ runner.temp }}/.protoc/bin
-          ${{ runner.temp }}/.protoc/bin/protoc --version
 
       - name: Install protoc-gen-go
         run: |

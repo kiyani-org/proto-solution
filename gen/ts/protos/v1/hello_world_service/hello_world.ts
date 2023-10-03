@@ -20,6 +20,7 @@ export interface HelloRequest {
 /** The response message containing the greetings */
 export interface HelloReply {
   message: string;
+  foo: string;
 }
 
 function createBaseHelloRequest(): HelloRequest {
@@ -80,13 +81,16 @@ export const HelloRequest = {
 };
 
 function createBaseHelloReply(): HelloReply {
-  return { message: "" };
+  return { message: "", foo: "" };
 }
 
 export const HelloReply = {
   encode(message: HelloReply, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     if (message.message !== "") {
       writer.uint32(10).string(message.message);
+    }
+    if (message.foo !== "") {
+      writer.uint32(18).string(message.foo);
     }
     return writer;
   },
@@ -105,6 +109,13 @@ export const HelloReply = {
 
           message.message = reader.string();
           continue;
+        case 2:
+          if (tag !== 18) {
+            break;
+          }
+
+          message.foo = reader.string();
+          continue;
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -115,13 +126,19 @@ export const HelloReply = {
   },
 
   fromJSON(object: any): HelloReply {
-    return { message: isSet(object.message) ? globalThis.String(object.message) : "" };
+    return {
+      message: isSet(object.message) ? globalThis.String(object.message) : "",
+      foo: isSet(object.foo) ? globalThis.String(object.foo) : "",
+    };
   },
 
   toJSON(message: HelloReply): unknown {
     const obj: any = {};
     if (message.message !== "") {
       obj.message = message.message;
+    }
+    if (message.foo !== "") {
+      obj.foo = message.foo;
     }
     return obj;
   },
@@ -132,6 +149,7 @@ export const HelloReply = {
   fromPartial<I extends Exact<DeepPartial<HelloReply>, I>>(object: I): HelloReply {
     const message = createBaseHelloReply();
     message.message = object.message ?? "";
+    message.foo = object.foo ?? "";
     return message;
   },
 };
