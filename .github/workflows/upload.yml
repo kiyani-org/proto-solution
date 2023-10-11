@@ -64,10 +64,10 @@ jobs:
           GO_GEN_PROTOS_DIRECTORY: './gen/go'
         run: |-
           gcloud artifacts go upload \
-          --module-path="${{ env.GO_MODULE_PATH }}" \
+          --module-path='${{ env.GO_MODULE_PATH }}' \
           --source=$GO_GEN_PROTOS_DIRECTORY \
-          --project="${{ env.PROJECT_ID }}" \
-          --location="${{ env.GO_GAR_REPOSITORY_LOCATION }}" \
-          --repository="${{ env.GO_GAR_REPOSITORY_NAME }}" \
+          --project='${{ env.PROJECT_ID }}' \
+          --location='${{ env.GO_GAR_REPOSITORY_LOCATION }}' \
+          --repository='${{ env.GO_GAR_REPOSITORY_NAME }}' \
           --version=$VERSION
 

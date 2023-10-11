@@ -15,6 +15,7 @@ export const protobufPackage = "helloworld.v2";
 /** The request message containing the user's name. */
 export interface HelloRequest {
   name: string;
+  id: string;
 }
 
 /** The response message containing the greetings */
@@ -23,13 +24,16 @@ export interface HelloReply {
 }
 
 function createBaseHelloRequest(): HelloRequest {
-  return { name: "" };
+  return { name: "", id: "" };
 }
 
 export const HelloRequest = {
   encode(message: HelloRequest, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     if (message.name !== "") {
       writer.uint32(10).string(message.name);
+    }
+    if (message.id !== "") {
+      writer.uint32(18).string(message.id);
     }
     return writer;
   },
@@ -48,6 +52,13 @@ export const HelloRequest = {
 
           message.name = reader.string();
           continue;
+        case 2:
+          if (tag !== 18) {
+            break;
+          }
+
+          message.id = reader.string();
+          continue;
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -58,13 +69,19 @@ export const HelloRequest = {
   },
 
   fromJSON(object: any): HelloRequest {
-    return { name: isSet(object.name) ? globalThis.String(object.name) : "" };
+    return {
+      name: isSet(object.name) ? globalThis.String(object.name) : "",
+      id: isSet(object.id) ? globalThis.String(object.id) : "",
+    };
   },
 
   toJSON(message: HelloRequest): unknown {
     const obj: any = {};
     if (message.name !== "") {
       obj.name = message.name;
+    }
+    if (message.id !== "") {
+      obj.id = message.id;
     }
     return obj;
   },
@@ -75,6 +92,7 @@ export const HelloRequest = {
   fromPartial<I extends Exact<DeepPartial<HelloRequest>, I>>(object: I): HelloRequest {
     const message = createBaseHelloRequest();
     message.name = object.name ?? "";
+    message.id = object.id ?? "";
     return message;
   },
 };

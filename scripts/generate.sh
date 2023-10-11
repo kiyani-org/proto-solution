@@ -78,13 +78,13 @@ function main() {
   # go protos
   dest_root_dir=gen/go
   pre_gen_go $dest_root_dir
-  generate_protos_rec $raw_protos_dir "go"
+  generate_protos_rec $raw_protos_dir
   post_gen_go $dest_root_dir
 
   # ts protos
   dest_root_dir=gen/ts
   pre_gen_ts $dest_root_dir
-  generate_protos_rec $raw_protos_dir "ts"
+  generate_protos_rec $raw_protos_dir
 }
 
 # Set the protos directory
