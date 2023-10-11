@@ -69,7 +69,7 @@ jobs:
       - name: 'Upload to GAR (go)'
         env:
           # version must have format vX.Y.Z https://cloud.google.com/artifact-registry/docs/go/store-go#package_and_upload_your_module
-          VERSION: 'v0.0.0-${{ steps.date.outputs.now }}-${{ github.sha }}'
+          VERSION: 'v0.0.0-${{ github.sha }}'
           GO_GEN_PROTOS_DIRECTORY: '.'
         run: |-
           cd ./gen/go
