@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package dog.v1;
 
-option go_package = "github.com/kiyani-org/proto-solution/v1/animal/dog;dogpb";
+option go_package = "v1/animal/dog;dogpb";
 
 message Dog {
   string breed = 1;

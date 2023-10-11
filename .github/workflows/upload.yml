@@ -57,30 +57,12 @@ jobs:
         with:
           go-version: ${{ env.DEFAULT_GO_VERSION }}
 
-      - id: 'date'
-        run: |-
-          echo "now=$(date +'%Y%m%d%H%M%S')" >> "$GITHUB_OUTPUT"
-
-      - name: 'Printing stuff for debugging'
-        run: |-
-          tree
-          ls -ltra ./gen/go
-
       - name: 'Upload to GAR (go)'
         env:
           # version must have format vX.Y.Z https://cloud.google.com/artifact-registry/docs/go/store-go#package_and_upload_your_module
-          # VERSION: 'v0.0.0-${{ steps.date.outputs.now }}-${{ github.sha }}'
           VERSION: 'v0.0.0-${{ github.sha }}'
           GO_GEN_PROTOS_DIRECTORY: './gen/go'
         run: |-
-          echo gcloud artifacts go upload \
-          --module-path="${{ env.GO_MODULE_PATH }}" \
-          --source=$GO_GEN_PROTOS_DIRECTORY \
-          --project="${{ env.PROJECT_ID }}" \
-          --location="${{ env.GO_GAR_REPOSITORY_LOCATION }}" \
-          --repository="${{ env.GO_GAR_REPOSITORY_NAME }}" \
-          --version=$VERSION
-
           gcloud artifacts go upload \
           --module-path="${{ env.GO_MODULE_PATH }}" \
           --source=$GO_GEN_PROTOS_DIRECTORY \
