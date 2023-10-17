@@ -47,14 +47,23 @@ jobs:
           cache_key: '${{ runner.os }}_${{ runner.arch }}_prototool_${{ env.PROTOTOOL_VERSION }}'
           add_to_path: true
 
+      - name: 'Set prototool to path'
+        env:
+          PROTOTOOL_PATH: '${{ runner.temp }}/.prototool/prototool/bin'
+        shell: 'bash'
+        run: |
+          echo "${PROTOTOOL_PATH}" >> $GITHUB_PATH
+
       - name: 'Lint proto files'
         env:
-          PROTOTOOL_PATH: '${{ runner.temp }}/.prototool/prototool/bin/prototool'
+          PROTOTOOL_PATH: '${{ runner.temp }}/.prototool/prototool/bin'
+        shell: 'bash'
         run: |
-          LINTER_OUTPUT=$($PROTOTOOL_PATH lint protos)
-          if ! [[ -z "${LINTER_OUTPUT}" ]]; then
-            echo "ERROR: linter errors were found:"
-            echo ${LINTER_OUTPUT}
+          set +e
+          LINT_OUTPUT=$(prototool lint protos)
+          echo $LINT_OUTPUT
+          if ! [[ -z "${LINT_OUTPUT}" ]]; then
+            echo "::error::$LINT_OUTPUT"
             exit 1
           fi
 
@@ -63,8 +72,8 @@ jobs:
           # add protoc to the path
           export PATH="$PATH:${{ runner.temp }}/.protoc/bin"
           chmod +x ./scripts/generate.sh && ./scripts/generate.sh
-          GIT_DIFF=$(git diff)
-          if ! [[ -z "${GIT_DIFF}" ]]; then
-            echo "ERROR: Generated proto files are out of sync, re-run script to reflect latest proto state"
+          FILE_DIFF=$(git status --porcelain)
+          if ! [[ -z "${FILE_DIFF}" ]]; then
+            echo "::error::Generated proto files are out of sync, re-run script to reflect latest proto state"
             exit 1
           fi

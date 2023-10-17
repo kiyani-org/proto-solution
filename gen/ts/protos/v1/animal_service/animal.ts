@@ -4,20 +4,20 @@ import _m0 from "protobufjs/minimal";
 export const protobufPackage = "animal.v1";
 
 export interface Animal {
-  classification: string;
+  ClassificatioN: string;
   id: number;
   name: string;
   foo: string;
 }
 
 function createBaseAnimal(): Animal {
-  return { classification: "", id: 0, name: "", foo: "" };
+  return { ClassificatioN: "", id: 0, name: "", foo: "" };
 }
 
 export const Animal = {
   encode(message: Animal, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
-    if (message.classification !== "") {
-      writer.uint32(10).string(message.classification);
+    if (message.ClassificatioN !== "") {
+      writer.uint32(10).string(message.ClassificatioN);
     }
     if (message.id !== 0) {
       writer.uint32(16).int32(message.id);
@@ -43,7 +43,7 @@ export const Animal = {
             break;
           }
 
-          message.classification = reader.string();
+          message.ClassificatioN = reader.string();
           continue;
         case 2:
           if (tag !== 16) {
@@ -77,7 +77,7 @@ export const Animal = {
 
   fromJSON(object: any): Animal {
     return {
-      classification: isSet(object.classification) ? globalThis.String(object.classification) : "",
+      ClassificatioN: isSet(object.ClassificatioN) ? globalThis.String(object.ClassificatioN) : "",
       id: isSet(object.id) ? globalThis.Number(object.id) : 0,
       name: isSet(object.name) ? globalThis.String(object.name) : "",
       foo: isSet(object.foo) ? globalThis.String(object.foo) : "",
@@ -86,8 +86,8 @@ export const Animal = {
 
   toJSON(message: Animal): unknown {
     const obj: any = {};
-    if (message.classification !== "") {
-      obj.classification = message.classification;
+    if (message.ClassificatioN !== "") {
+      obj.ClassificatioN = message.ClassificatioN;
     }
     if (message.id !== 0) {
       obj.id = Math.round(message.id);
@@ -106,7 +106,7 @@ export const Animal = {
   },
   fromPartial<I extends Exact<DeepPartial<Animal>, I>>(object: I): Animal {
     const message = createBaseAnimal();
-    message.classification = object.classification ?? "";
+    message.ClassificatioN = object.ClassificatioN ?? "";
     message.id = object.id ?? 0;
     message.name = object.name ?? "";
     message.foo = object.foo ?? "";
