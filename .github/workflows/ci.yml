@@ -55,13 +55,10 @@ jobs:
           echo "${PROTOTOOL_PATH}" >> $GITHUB_PATH
 
       - name: 'Lint proto files'
-        env:
-          PROTOTOOL_PATH: '${{ runner.temp }}/.prototool/prototool/bin'
         shell: 'bash'
         run: |
           set +e
           LINT_OUTPUT=$(prototool lint protos)
-          echo $LINT_OUTPUT
           if ! [[ -z "${LINT_OUTPUT}" ]]; then
             echo "::error::$LINT_OUTPUT"
             exit 1
