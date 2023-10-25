@@ -13,7 +13,7 @@ env:
   PROTOC_GEN_GO_PLUGIN_VERSION: '1.31'
 
 jobs:
-  prototool:
+  validate:
     runs-on: 'ubuntu-latest'
 
     steps:
