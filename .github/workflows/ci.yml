@@ -1,6 +1,7 @@
 name: 'ci'
 
 on:
+  workflow_call:
   pull_request:
     branches:
       - 'main'
@@ -27,6 +28,8 @@ jobs:
     steps:
       - name: 'Checkout'
         uses: 'actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9' # ratchet:actions/checkout@v3
+        with:
+          ref: '${{ github.event.pull_request.head.ref }}'        
       - name: 'Capture proposed version'
         id: "capture"
         run: |
@@ -79,7 +82,7 @@ jobs:
 
           echo "MAJOR_VERSION_CHANGE=$(expr $proposed - $latest)" >> $GITHUB_OUTPUT
 
-  validate:
+  generated_protos_in_sync:
     runs-on: 'ubuntu-latest'
     needs: 
       - 'major_version_diff'
@@ -88,6 +91,14 @@ jobs:
     steps:
       - name: 'Checkout'
         uses: 'actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9' # ratchet:actions/checkout@v3
+        with:
+          ref: 'main'
+          path: 'main-branch'
+
+      - name: 'Checkout'
+        uses: 'actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9' # ratchet:actions/checkout@v3
+        with:
+          ref: '${{ github.event.pull_request.head.ref }}'
 
       - name: 'Setup Go'
         uses: 'actions/setup-go@fac708d6674e30b6ba41289acaab6d4b75aa0753' # ratchet:actions/setup-go@v4
@@ -132,6 +143,16 @@ jobs:
             echo "::error::$LINT_OUTPUT"
             exit 1
           fi
+       
+      # - name: 'Check for breaking changes'
+      #   if: ${{ needs.major_version_diff.outputs.major_version_change == 0 }}
+      #   run: |
+      #     set +e
+      #     BREAK_CHECK=$(prototool break check protos --descriptor-set-path ./main-branch)
+      #     if ! [[ -z "${BREAK_CHECK}" ]]; then
+      #       echo "::error::$BREAK_CHECK"
+      #       exit 1
+      #     fi
 
       - name: 'Verify generated proto files'
         run: |
@@ -143,13 +164,71 @@ jobs:
             echo "::error::Generated proto files are out of sync, re-run script to reflect latest proto state"
             exit 1
           fi
-        
-      - name: 'Check for breaking changes'
-        if: ${{ needs.major_version_diff.outputs.major_version_change == 0 }}
+           
+  breaking_changes:
+    runs-on: 'ubuntu-latest'
+    needs: 
+      - 'generated_protos_in_sync'
+      - 'major_version_diff'
+    if: ${{ needs.major_version_diff.outputs.major_version_change == 0 }}
+    steps:
+      - name: 'Checkout'
+        uses: 'actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9' # ratchet:actions/checkout@v3
+        with:
+          ref: 'main'
+          path: 'main-branch'
+
+      - name: 'Checkout'
+        uses: 'actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9' # ratchet:actions/checkout@v3
+        with:
+          ref: '${{ github.event.pull_request.head.ref }}'
+
+      - name: 'Setup Go'
+        uses: 'actions/setup-go@fac708d6674e30b6ba41289acaab6d4b75aa0753' # ratchet:actions/setup-go@v4
+        with:
+          go-version: ${{ env.DEFAULT_GO_VERSION }}
+
+      - name: 'Install protobuf'
+        uses: 'abcxyz/pkg/.github/actions/setup-binary@main' # ratchet:exclude
+        with:
+          download_url: 'https://github.com/protocolbuffers/protobuf/releases/download/v${{ env.PROTOBUF_VERSION }}/protoc-${{ env.PROTOBUF_VERSION }}-linux-x86_64.zip'
+          install_path: '${{ runner.temp }}/.protoc'
+          checksum: 'fc793561283d9ea6813fb757ae54f1afea6770afcd930904bdf3e590910420aa'
+          cache_key: '${{ runner.os }}_${{ runner.arch }}_protoc_${{ env.PROTOBUF_VERSION }}'
+          add_to_path: true
+
+      - name: 'Install protoc-gen-go'
+        run: |
+          go install google.golang.org/protobuf/cmd/protoc-gen-go@v${{ env.PROTOC_GEN_GO_PLUGIN_VERSION }}
+  
+      - name: 'Install prototool binary'
+        uses: 'abcxyz/pkg/.github/actions/setup-binary@main' # ratchet:exclude
+        with:
+          download_url: 'https://github.com/uber/prototool/releases/download/v${{ env.PROTOTOOL_VERSION }}/prototool-Linux-x86_64.tar.gz'
+          install_path: '${{ runner.temp }}/.prototool'
+          checksum: '50e53589b95e2435e26de01de8eac6af6ae6980b1cacf1e0ad319b7644f16b3b'
+          cache_key: '${{ runner.os }}_${{ runner.arch }}_prototool_${{ env.PROTOTOOL_VERSION }}'
+          add_to_path: true
+
+      - name: 'Set prototool to path'
+        env:
+          PROTOTOOL_PATH: '${{ runner.temp }}/.prototool/prototool/bin'
+        shell: 'bash'
+        run: |
+          echo "${PROTOTOOL_PATH}" >> $GITHUB_PATH
+
+      - name: 'Create descriptor set of checked in protos'
+        shell: 'bash'
         run: |
           set +e
-          echo ${{ needs.major_version_diff.outputs.major_version_change }}
-          BREAK_CHECK=$(prototool break check protos)
+          echo $(find protos -iname "*.proto")
+          find protos -iname "*.proto" | xargs protoc --descriptor_set_out=proto_descriptor_set.desc
+  
+      - name: 'Check for breaking changes'
+        shell: 'bash'
+        run: |
+          set +e
+          BREAK_CHECK=$(prototool break check protos --descriptor-set-path ./main-branch/proto_descriptor_set.desc)
           if ! [[ -z "${BREAK_CHECK}" ]]; then
             echo "::error::$BREAK_CHECK"
             exit 1
