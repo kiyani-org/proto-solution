@@ -15,14 +15,13 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  DEFAULT_GO_VERSION: '1.21'
+  GO_VERSION: '1.21'
   WIF_PROVIDER: 'projects/891125439796/locations/global/workloadIdentityPools/gh-automation-977ae9/providers/gh-automation-977ae9'
   WIF_SERVICE_ACCOUNT: 'gh-automation-sa@shankiyani-dev-d736c9.iam.gserviceaccount.com'
   PROJECT_ID: 'shankiyani-dev-d736c9'
   GO_GAR_REPOSITORY_NAME: 'go-protos'
   GO_GAR_REPOSITORY_LOCATION: 'us-east1'
   GO_MODULE_PATH: 'github.com/kiyani-org/proto-solution'
-  GO_GAR_PROTO_VERSION: 'v0.0.0'
 
 jobs:
   ci:
@@ -31,9 +30,22 @@ jobs:
       contents: 'read'
       id-token: 'write'
 
+  store_proposed_proto_version:
+    runs-on: 'ubuntu-latest'
+    outputs:
+      proposed_proto_version: ${{ steps.capture.outputs.PROPOSED_PROTO_VERSION }}
+    steps:
+      - name: 'Checkout'
+        uses: 'actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9' # ratchet:actions/checkout@v3
+      - name: 'Capture proposed version'
+        id: "capture"
+        run: |
+          echo "PROPOSED_PROTO_VERSION=$(yq eval '.proto_version' version.yaml)" >> $GITHUB_OUTPUT
+
   deploy_go:
     needs:
       - 'ci'
+      - 'store_proposed_proto_version'
     runs-on: 'ubuntu-latest'
     steps:
       - name: 'Checkout'
@@ -54,13 +66,13 @@ jobs:
       - name: 'Setup Go'
         uses: 'actions/setup-go@fac708d6674e30b6ba41289acaab6d4b75aa0753' # ratchet:actions/setup-go@v4
         with:
-          go-version: '${{ env.DEFAULT_GO_VERSION }}'
+          go-version: '${{ env.GO_VERSION }}'
 
       - name: 'Upload to GAR (go)'
         env:
           # version must be prefixed with vX.Y.Z https://cloud.google.com/artifact-registry/docs/go/store-go#package_and_upload_your_module
           # the sha suffix is easily associate a commit with a version.
-          VERSION: '${{ env.GO_GAR_PROTO_VERSION }}-${{ github.sha }}'
+          VERSION: '${{ needs.store_proposed_proto_version.outputs.proposed_proto_version }}-${{ github.sha }}'
           GO_GEN_PROTOS_DIRECTORY: './gen/go'
         run: |-
           gcloud artifacts go upload \
