@@ -2,9 +2,8 @@
 
 function execute_protoc() {
   dest_root_dir=$1
-  echo $1
   file_or_dir=$2
-  echo $2
+  echo executing protoc command on $2
   lang=$(basename "$dest_root_dir")
   case $lang in
     go)
