@@ -20,7 +20,7 @@ export interface HelloRequest {
 
 /** The response message containing the greetings */
 export interface HelloReply {
-  fizz: string;
+  message: string;
 }
 
 function createBaseHelloRequest(): HelloRequest {
@@ -98,13 +98,13 @@ export const HelloRequest = {
 };
 
 function createBaseHelloReply(): HelloReply {
-  return { fizz: "" };
+  return { message: "" };
 }
 
 export const HelloReply = {
   encode(message: HelloReply, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
-    if (message.fizz !== "") {
-      writer.uint32(10).string(message.fizz);
+    if (message.message !== "") {
+      writer.uint32(10).string(message.message);
     }
     return writer;
   },
@@ -121,7 +121,7 @@ export const HelloReply = {
             break;
           }
 
-          message.fizz = reader.string();
+          message.message = reader.string();
           continue;
       }
       if ((tag & 7) === 4 || tag === 0) {
@@ -133,13 +133,13 @@ export const HelloReply = {
   },
 
   fromJSON(object: any): HelloReply {
-    return { fizz: isSet(object.fizz) ? globalThis.String(object.fizz) : "" };
+    return { message: isSet(object.message) ? globalThis.String(object.message) : "" };
   },
 
   toJSON(message: HelloReply): unknown {
     const obj: any = {};
-    if (message.fizz !== "") {
-      obj.fizz = message.fizz;
+    if (message.message !== "") {
+      obj.message = message.message;
     }
     return obj;
   },
@@ -149,7 +149,7 @@ export const HelloReply = {
   },
   fromPartial<I extends Exact<DeepPartial<HelloReply>, I>>(object: I): HelloReply {
     const message = createBaseHelloReply();
-    message.fizz = object.fizz ?? "";
+    message.message = object.message ?? "";
     return message;
   },
 };
