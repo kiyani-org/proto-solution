@@ -22,11 +22,11 @@ env:
   BUF_VERSION: '1.28.1'
 
 jobs:
-  build: 
+  build:
     runs-on: 'ubuntu-latest'
     steps:
       - name: 'Checkout PR branch'
-        uses: 'actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9' # ratchet:actions/checkout@v3
+        uses: 'actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11' # ratchet:actions/checkout@v4
         with:
           ref: '${{ github.event.pull_request.head.ref }}'
 
@@ -50,7 +50,7 @@ jobs:
     needs: 'build'
     steps:
       - name: 'Checkout PR branch'
-        uses: 'actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9' # ratchet:actions/checkout@v3
+        uses: 'actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744' # ratchet:actions/checkout@v3
         with:
           ref: '${{ github.event.pull_request.head.ref }}'
 
@@ -60,19 +60,19 @@ jobs:
           github_token: ${{ github.token }}
 
       - name: 'Run Linter'
-        uses: 'bufbuild/buf-lint-action@v1'
+        uses: 'bufbuild/buf-lint-action@044d13acb1f155179c606aaa2e53aea304d22058' # ratchet:bufbuild/buf-lint-action@v1
 
   regenerate:
     runs-on: 'ubuntu-latest'
     needs: 'lint'
     steps:
       - name: 'Checkout PR branch'
-        uses: 'actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9' # ratchet:actions/checkout@v3
+        uses: 'actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744' # ratchet:actions/checkout@v3
         with:
           ref: '${{ github.event.pull_request.head.ref }}'
 
       - name: 'Setup Go'
-        uses: 'actions/setup-go@fac708d6674e30b6ba41289acaab6d4b75aa0753' # ratchet:actions/setup-go@v4
+        uses: 'actions/setup-go@93397bea11091df50f3d7e59dc26a7711a8bcfbe' # ratchet:actions/setup-go@v4
         with:
           go-version: ${{ env.DEFAULT_GO_VERSION }}
 
@@ -88,7 +88,7 @@ jobs:
           install_path: '${{ runner.temp }}/.protoc'
           checksum: 'fc793561283d9ea6813fb757ae54f1afea6770afcd930904bdf3e590910420aa'
           cache_key: '${{ runner.os }}_${{ runner.arch }}_protoc_${{ env.PROTOBUF_VERSION }}'
-          add_to_path: true          
+          add_to_path: true
 
       - name: 'Install protoc-gen-go'
         run: |
@@ -111,7 +111,7 @@ jobs:
     needs: 'regenerate'
     steps:
       - name: 'Checkout PR branch'
-        uses: 'actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9' # ratchet:actions/checkout@v3
+        uses: 'actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744' # ratchet:actions/checkout@v3
         with:
           ref: '${{ github.event.pull_request.head.ref }}'
 
@@ -119,198 +119,198 @@ jobs:
         uses: 'bufbuild/buf-setup-action@382440cdb8ec7bc25a68d7b4711163d95f7cc3aa' # ratchet:bufbuild/buf-setup-action@v1.28.1
 
       - name: 'Run Break Check'
-        uses: bufbuild/buf-breaking-action@v1
+        uses: bufbuild/buf-breaking-action@f47418c81c00bfd65394628385593542f64db477 # ratchet:bufbuild/buf-breaking-action@v1
         with:
           against: 'https://github.com/kiyani-org/proto-solution.git#branch=main,ref=HEAD~1'
 
-  # store_proposed_proto_version:
-  #   runs-on: 'ubuntu-latest'
-  #   outputs:
-  #     proposed_proto_version: ${{ steps.capture.outputs.PROPOSED_PROTO_VERSION }}
-  #   steps:
-  #     - name: 'Checkout'
-  #       uses: 'actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9' # ratchet:actions/checkout@v3
-  #       with:
-  #         ref: '${{ github.event.pull_request.head.ref }}'        
-  #     - name: 'Capture proposed version'
-  #       id: "capture"
-  #       run: |
-  #         echo "PROPOSED_PROTO_VERSION=$(yq eval '.proto_version' version.yaml)" >> $GITHUB_OUTPUT
+# store_proposed_proto_version:
+#   runs-on: 'ubuntu-latest'
+#   outputs:
+#     proposed_proto_version: ${{ steps.capture.outputs.PROPOSED_PROTO_VERSION }}
+#   steps:
+#     - name: 'Checkout'
+#       uses: 'actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9' # ratchet:actions/checkout@v3
+#       with:
+#         ref: '${{ github.event.pull_request.head.ref }}'        
+#     - name: 'Capture proposed version'
+#       id: "capture"
+#       run: |
+#         echo "PROPOSED_PROTO_VERSION=$(yq eval '.proto_version' version.yaml)" >> $GITHUB_OUTPUT
 
-  # store_latest_proto_version:
-  #   runs-on: 'ubuntu-latest'
-  #   needs: 'store_proposed_proto_version'
-  #   env:
-  #     PROPOSED_PROTO_VERSION: ${{ needs.store_proposed_proto_version.outputs.proposed_proto_version }}
-  #   outputs:
-  #     latest_proto_version: ${{ steps.capture.outputs.LATEST_PROTO_VERSION }}    
-  #   steps:
-  #     - name: 'Checkout'
-  #       uses: 'actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9' # ratchet:actions/checkout@v3
-  #       with:
-  #         ref: 'main'
-  #     - name: 'Capture latest version'
-  #       id: 'capture'
-  #       run: |
-  #         set +e
-  #         LATEST_PROTO_VERSION=$(yq eval '.proto_version' version.yaml) 
-  #         if ! [[ -z "${LATEST_PROTO_VERSION}" ]]; then
-  #           echo "LATEST_PROTO_VERSION=$LATEST_PROTO_VERSION" >> $GITHUB_OUTPUT
-  #         else
-  #           echo $PROPOSED_PROTO_VERSION
-  #           echo "LATEST_PROTO_VERSION=$PROPOSED_PROTO_VERSION" >> $GITHUB_OUTPUT
-  #         fi
+# store_latest_proto_version:
+#   runs-on: 'ubuntu-latest'
+#   needs: 'store_proposed_proto_version'
+#   env:
+#     PROPOSED_PROTO_VERSION: ${{ needs.store_proposed_proto_version.outputs.proposed_proto_version }}
+#   outputs:
+#     latest_proto_version: ${{ steps.capture.outputs.LATEST_PROTO_VERSION }}    
+#   steps:
+#     - name: 'Checkout'
+#       uses: 'actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9' # ratchet:actions/checkout@v3
+#       with:
+#         ref: 'main'
+#     - name: 'Capture latest version'
+#       id: 'capture'
+#       run: |
+#         set +e
+#         LATEST_PROTO_VERSION=$(yq eval '.proto_version' version.yaml) 
+#         if ! [[ -z "${LATEST_PROTO_VERSION}" ]]; then
+#           echo "LATEST_PROTO_VERSION=$LATEST_PROTO_VERSION" >> $GITHUB_OUTPUT
+#         else
+#           echo $PROPOSED_PROTO_VERSION
+#           echo "LATEST_PROTO_VERSION=$PROPOSED_PROTO_VERSION" >> $GITHUB_OUTPUT
+#         fi
 
-  # major_version_diff:
-  #   runs-on: 'ubuntu-latest'
-  #   needs: 
-  #     - 'store_proposed_proto_version'      
-  #     - 'store_latest_proto_version'
-  #   env:
-  #     PROPOSED_PROTO_VERSION: ${{ needs.store_proposed_proto_version.outputs.proposed_proto_version }}
-  #     LATEST_PROTO_VERSION: ${{ needs.store_latest_proto_version.outputs.latest_proto_version }}
-  #   outputs:
-  #     major_version_change: ${{ steps.capture.outputs.MAJOR_VERSION_CHANGE }}  
-  #   steps:
-  #     - name: 'Compare major versions'
-  #       id: 'capture'
-  #       run: |
-  #         set +e
-  #         v_proposed=$(awk -F. '{print $1}' <<< $PROPOSED_PROTO_VERSION)
-  #         proposed=$(sed s/v//g <<< $v_proposed)
+# major_version_diff:
+#   runs-on: 'ubuntu-latest'
+#   needs: 
+#     - 'store_proposed_proto_version'      
+#     - 'store_latest_proto_version'
+#   env:
+#     PROPOSED_PROTO_VERSION: ${{ needs.store_proposed_proto_version.outputs.proposed_proto_version }}
+#     LATEST_PROTO_VERSION: ${{ needs.store_latest_proto_version.outputs.latest_proto_version }}
+#   outputs:
+#     major_version_change: ${{ steps.capture.outputs.MAJOR_VERSION_CHANGE }}  
+#   steps:
+#     - name: 'Compare major versions'
+#       id: 'capture'
+#       run: |
+#         set +e
+#         v_proposed=$(awk -F. '{print $1}' <<< $PROPOSED_PROTO_VERSION)
+#         proposed=$(sed s/v//g <<< $v_proposed)
 
-  #         v_latest=$(awk -F. '{print $1}' <<< $LATEST_PROTO_VERSION)
-  #         latest=$(sed s/v//g <<< $v_latest)
+#         v_latest=$(awk -F. '{print $1}' <<< $LATEST_PROTO_VERSION)
+#         latest=$(sed s/v//g <<< $v_latest)
 
-  #         echo "MAJOR_VERSION_CHANGE=$(expr $proposed - $latest)" >> $GITHUB_OUTPUT
+#         echo "MAJOR_VERSION_CHANGE=$(expr $proposed - $latest)" >> $GITHUB_OUTPUT
 
-  # generated_protos_in_sync:
-  #   runs-on: 'ubuntu-latest'
-  #   needs: 
-  #     - 'major_version_diff'
-  #     - 'store_proposed_proto_version'
-  #     - 'store_latest_proto_version'
-  #   steps:
-  #     - name: 'Checkout PR branch'
-  #       uses: 'actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9' # ratchet:actions/checkout@v3
-  #       with:
-  #         ref: '${{ github.event.pull_request.head.ref }}'
+# generated_protos_in_sync:
+#   runs-on: 'ubuntu-latest'
+#   needs: 
+#     - 'major_version_diff'
+#     - 'store_proposed_proto_version'
+#     - 'store_latest_proto_version'
+#   steps:
+#     - name: 'Checkout PR branch'
+#       uses: 'actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9' # ratchet:actions/checkout@v3
+#       with:
+#         ref: '${{ github.event.pull_request.head.ref }}'
 
-  #     - name: 'Setup Go'
-  #       uses: 'actions/setup-go@fac708d6674e30b6ba41289acaab6d4b75aa0753' # ratchet:actions/setup-go@v4
-  #       with:
-  #         go-version: ${{ env.DEFAULT_GO_VERSION }}
+#     - name: 'Setup Go'
+#       uses: 'actions/setup-go@fac708d6674e30b6ba41289acaab6d4b75aa0753' # ratchet:actions/setup-go@v4
+#       with:
+#         go-version: ${{ env.DEFAULT_GO_VERSION }}
 
-  #     - name: 'Install protobuf'
-  #       uses: 'abcxyz/pkg/.github/actions/setup-binary@main' # ratchet:exclude
-  #       with:
-  #         download_url: 'https://github.com/protocolbuffers/protobuf/releases/download/v${{ env.PROTOBUF_VERSION }}/protoc-${{ env.PROTOBUF_VERSION }}-linux-x86_64.zip'
-  #         install_path: '${{ runner.temp }}/.protoc'
-  #         checksum: 'fc793561283d9ea6813fb757ae54f1afea6770afcd930904bdf3e590910420aa'
-  #         cache_key: '${{ runner.os }}_${{ runner.arch }}_protoc_${{ env.PROTOBUF_VERSION }}'
-  #         add_to_path: true
+#     - name: 'Install protobuf'
+#       uses: 'abcxyz/pkg/.github/actions/setup-binary@main' # ratchet:exclude
+#       with:
+#         download_url: 'https://github.com/protocolbuffers/protobuf/releases/download/v${{ env.PROTOBUF_VERSION }}/protoc-${{ env.PROTOBUF_VERSION }}-linux-x86_64.zip'
+#         install_path: '${{ runner.temp }}/.protoc'
+#         checksum: 'fc793561283d9ea6813fb757ae54f1afea6770afcd930904bdf3e590910420aa'
+#         cache_key: '${{ runner.os }}_${{ runner.arch }}_protoc_${{ env.PROTOBUF_VERSION }}'
+#         add_to_path: true
 
-  #     - name: 'Install protoc-gen-go'
-  #       run: |
-  #         go install google.golang.org/protobuf/cmd/protoc-gen-go@v${{ env.PROTOC_GEN_GO_PLUGIN_VERSION }}
+#     - name: 'Install protoc-gen-go'
+#       run: |
+#         go install google.golang.org/protobuf/cmd/protoc-gen-go@v${{ env.PROTOC_GEN_GO_PLUGIN_VERSION }}
 
-  #     - name: 'Install prototool binary'
-  #       uses: 'abcxyz/pkg/.github/actions/ @main' # ratchet:exclude
-  #       with:
-  #         download_url: 'https://github.com/uber/prototool/releases/download/v${{ env.PROTOTOOL_VERSION }}/prototool-Linux-x86_64.tar.gz'
-  #         install_path: '${{ runner.temp }}/.prototool'
-  #         checksum: '50e53589b95e2435e26de01de8eac6af6ae6980b1cacf1e0ad319b7644f16b3b'
-  #         cache_key: '${{ runner.os }}_${{ runner.arch }}_prototool_${{ env.PROTOTOOL_VERSION }}'
-  #         add_to_path: true
+#     - name: 'Install prototool binary'
+#       uses: 'abcxyz/pkg/.github/actions/ @main' # ratchet:exclude
+#       with:
+#         download_url: 'https://github.com/uber/prototool/releases/download/v${{ env.PROTOTOOL_VERSION }}/prototool-Linux-x86_64.tar.gz'
+#         install_path: '${{ runner.temp }}/.prototool'
+#         checksum: '50e53589b95e2435e26de01de8eac6af6ae6980b1cacf1e0ad319b7644f16b3b'
+#         cache_key: '${{ runner.os }}_${{ runner.arch }}_prototool_${{ env.PROTOTOOL_VERSION }}'
+#         add_to_path: true
 
-  #     - name: 'Set prototool to path'
-  #       env:
-  #         PROTOTOOL_PATH: '${{ runner.temp }}/.prototool/prototool/bin'
-  #       shell: 'bash'
-  #       run: |
-  #         echo "${PROTOTOOL_PATH}" >> $GITHUB_PATH
+#     - name: 'Set prototool to path'
+#       env:
+#         PROTOTOOL_PATH: '${{ runner.temp }}/.prototool/prototool/bin'
+#       shell: 'bash'
+#       run: |
+#         echo "${PROTOTOOL_PATH}" >> $GITHUB_PATH
 
-  #     - name: 'Lint proto files'
-  #       shell: 'bash'
-  #       run: |
-  #         set +e
-  #         LINT_OUTPUT=$(prototool lint protos)
-  #         if ! [[ -z "${LINT_OUTPUT}" ]]; then
-  #           echo "::error::$LINT_OUTPUT"
-  #           exit 1
-  #         fi
+#     - name: 'Lint proto files'
+#       shell: 'bash'
+#       run: |
+#         set +e
+#         LINT_OUTPUT=$(prototool lint protos)
+#         if ! [[ -z "${LINT_OUTPUT}" ]]; then
+#           echo "::error::$LINT_OUTPUT"
+#           exit 1
+#         fi
 
-  #     - name: 'Verify generated proto files'
-  #       run: |
-  #         # add protoc to the path
-  #         export PATH="$PATH:${{ runner.temp }}/.protoc/bin"
-  #         chmod +x ./scripts/generate.sh && ./scripts/generate.sh
-  #         FILE_DIFF=$(git status --porcelain)
-  #         if ! [[ -z "${FILE_DIFF}" ]]; then
-  #           echo "::error::Generated proto files are out of sync, re-run script to reflect latest proto state"
-  #           exit 1
-  #         fi
-           
-  # breaking_changes:
-  #   runs-on: 'ubuntu-latest'
-  #   needs: 
-  #     - 'generated_protos_in_sync'
-  #     - 'major_version_diff'
-  #   if: ${{ needs.major_version_diff.outputs.major_version_change == 0 }}
-  #   steps:
-  #     - name: 'Checkout'
-  #       uses: 'actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9' # ratchet:actions/checkout@v3
-  #       with:
-  #         ref: '${{ github.event.pull_request.head.ref }}'
-  #         fetch-depth: 0
+#     - name: 'Verify generated proto files'
+#       run: |
+#         # add protoc to the path
+#         export PATH="$PATH:${{ runner.temp }}/.protoc/bin"
+#         chmod +x ./scripts/generate.sh && ./scripts/generate.sh
+#         FILE_DIFF=$(git status --porcelain)
+#         if ! [[ -z "${FILE_DIFF}" ]]; then
+#           echo "::error::Generated proto files are out of sync, re-run script to reflect latest proto state"
+#           exit 1
+#         fi
+# breaking_changes:
+#   runs-on: 'ubuntu-latest'
+#   needs: 
+#     - 'generated_protos_in_sync'
+#     - 'major_version_diff'
+#   if: ${{ needs.major_version_diff.outputs.major_version_change == 0 }}
+#   steps:
+#     - name: 'Checkout'
+#       uses: 'actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9' # ratchet:actions/checkout@v3
+#       with:
+#         ref: '${{ github.event.pull_request.head.ref }}'
+#         fetch-depth: 0
+#     - name: 'Test some git stuff'
 
-  #     - name: 'Test some git stuff'
-  #       shell: 'bash'
-  #       run: |
-  #         set +e
-  #         git fetch origin main:main
-  #         git branch -a
+#       shell: 'bash'
+#       run: |
+#         set +e
+#         git fetch origin main:main
+#         git branch -a
+#     - name: 'Setup Go'
 
-  #     - name: 'Setup Go'
-  #       uses: 'actions/setup-go@fac708d6674e30b6ba41289acaab6d4b75aa0753' # ratchet:actions/setup-go@v4
-  #       with:
-  #         go-version: ${{ env.DEFAULT_GO_VERSION }}
+#       uses: 'actions/setup-go@fac708d6674e30b6ba41289acaab6d4b75aa0753' # ratchet:actions/setup-go@v4
+#       with:
+#         go-version: ${{ env.DEFAULT_GO_VERSION }}
+#     - name: 'Install protobuf'
 
-  #     - name: 'Install protobuf'
-  #       uses: 'abcxyz/pkg/.github/actions/setup-binary@main' # ratchet:exclude
-  #       with:
-  #         download_url: 'https://github.com/protocolbuffers/protobuf/releases/download/v${{ env.PROTOBUF_VERSION }}/protoc-${{ env.PROTOBUF_VERSION }}-linux-x86_64.zip'
-  #         install_path: '${{ runner.temp }}/.protoc'
-  #         checksum: 'fc793561283d9ea6813fb757ae54f1afea6770afcd930904bdf3e590910420aa'
-  #         cache_key: '${{ runner.os }}_${{ runner.arch }}_protoc_${{ env.PROTOBUF_VERSION }}'
-  #         add_to_path: true
+#       uses: 'abcxyz/pkg/.github/actions/setup-binary@main' # ratchet:exclude
+#       with:
+#         download_url: 'https://github.com/protocolbuffers/protobuf/releases/download/v${{ env.PROTOBUF_VERSION }}/protoc-${{ env.PROTOBUF_VERSION }}-linux-x86_64.zip'
+#         install_path: '${{ runner.temp }}/.protoc'
+#         checksum: 'fc793561283d9ea6813fb757ae54f1afea6770afcd930904bdf3e590910420aa'
+#         cache_key: '${{ runner.os }}_${{ runner.arch }}_protoc_${{ env.PROTOBUF_VERSION }}'
+#         add_to_path: true
+#     - name: 'Install protoc-gen-go'
 
-  #     - name: 'Install protoc-gen-go'
-  #       run: |
-  #         go install google.golang.org/protobuf/cmd/protoc-gen-go@v${{ env.PROTOC_GEN_GO_PLUGIN_VERSION }}
-  
-  #     - name: 'Install prototool binary'
-  #       uses: 'abcxyz/pkg/.github/actions/setup-binary@main' # ratchet:exclude
-  #       with:
-  #         download_url: 'https://github.com/uber/prototool/releases/download/v${{ env.PROTOTOOL_VERSION }}/prototool-Linux-x86_64.tar.gz'
-  #         install_path: '${{ runner.temp }}/.prototool'
-  #         checksum: '50e53589b95e2435e26de01de8eac6af6ae6980b1cacf1e0ad319b7644f16b3b'
-  #         cache_key: '${{ runner.os }}_${{ runner.arch }}_prototool_${{ env.PROTOTOOL_VERSION }}'
-  #         add_to_path: true
+#       run: |
+#         go install google.golang.org/protobuf/cmd/protoc-gen-go@v${{ env.PROTOC_GEN_GO_PLUGIN_VERSION }}
+#     - name: 'Install prototool binary'
+#       uses: 'abcxyz/pkg/.github/actions/setup-binary@main' # ratchet:exclude
+#       with:
+#         download_url: 'https://github.com/uber/prototool/releases/download/v${{ env.PROTOTOOL_VERSION }}/prototool-Linux-x86_64.tar.gz'
+#         install_path: '${{ runner.temp }}/.prototool'
+#         checksum: '50e53589b95e2435e26de01de8eac6af6ae6980b1cacf1e0ad319b7644f16b3b'
+#         cache_key: '${{ runner.os }}_${{ runner.arch }}_prototool_${{ env.PROTOTOOL_VERSION }}'
+#         add_to_path: true
 
-  #     - name: 'Set prototool to path'
-  #       env:
-  #         PROTOTOOL_PATH: '${{ runner.temp }}/.prototool/prototool/bin'
-  #       shell: 'bash'
-  #       run: |
-  #         echo "${PROTOTOOL_PATH}" >> $GITHUB_PATH
+#     - name: 'Set prototool to path'
 
-  #     - name: 'Check for breaking changes'
-  #       shell: 'bash'
-  #       run: |
-  #         set +e
-  #         BREAK_CHECK=$(prototool break check protos --git-branch main)
-  #         if ! [[ -z "${BREAK_CHECK}" ]]; then
-  #           echo "::error::$BREAK_CHECK"
-  #           exit 1
-  #         fi
+#       env:
+#         PROTOTOOL_PATH: '${{ runner.temp }}/.prototool/prototool/bin'
+#       shell: 'bash'
+#       run: |
+#         echo "${PROTOTOOL_PATH}" >> $GITHUB_PATH
+
+
+#     - name: 'Check for breaking changes'
+#       shell: 'bash'
+#       run: |
+#         set +e
+#         BREAK_CHECK=$(prototool break check protos --git-branch main)
+#         if ! [[ -z "${BREAK_CHECK}" ]]; then
+#           echo "::error::$BREAK_CHECK"
+#           exit 1
+#         fi

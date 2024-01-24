@@ -33,7 +33,7 @@ jobs:
       proposed_proto_version: ${{ steps.capture.outputs.PROPOSED_PROTO_VERSION }}
     steps:
       - name: 'Checkout'
-        uses: 'actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9' # ratchet:actions/checkout@v3
+        uses: 'actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744' # ratchet:actions/checkout@v3
       - name: 'Capture proposed version'
         id: "capture"
         run: |
@@ -46,22 +46,22 @@ jobs:
     runs-on: 'ubuntu-latest'
     steps:
       - name: 'Checkout'
-        uses: 'actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9' # ratchet:actions/checkout@v3
+        uses: 'actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11' # ratchet:actions/checkout@v4
 
       - id: 'auth'
         name: 'Authenticate to Google Cloud'
-        uses: 'google-github-actions/auth@ef5d53e30bbcd8d0836f4288f5e50ff3e086997d' # ratchet:google-github-actions/auth@v1
+        uses: 'google-github-actions/auth@3a3c4c57d294ef65efaaee4ff17b22fa88dd3c69' # ratchet:google-github-actions/auth@v1
         with:
           workload_identity_provider: '${{ env.WIF_PROVIDER }}'
           service_account: '${{ env.WIF_SERVICE_ACCOUNT }}'
 
       - name: 'Setup gcloud'
-        uses: 'google-github-actions/setup-gcloud@d51b5346f85640ec2aa2fa057354d2b82c2fcbce' # ratchet:google-github-actions/setup-gcloud@v1
+        uses: 'google-github-actions/setup-gcloud@98ddc00a17442e89a24bbf282954a3b65ce6d200' # ratchet:google-github-actions/setup-gcloud@v2
         with:
           install_components: 'package-go-module'
 
       - name: 'Setup Go'
-        uses: 'actions/setup-go@fac708d6674e30b6ba41289acaab6d4b75aa0753' # ratchet:actions/setup-go@v4
+        uses: 'actions/setup-go@93397bea11091df50f3d7e59dc26a7711a8bcfbe' # ratchet:actions/setup-go@v4
         with:
           go-version: '${{ env.GO_VERSION }}'
           
