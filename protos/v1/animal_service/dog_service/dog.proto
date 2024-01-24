@@ -1,9 +1,0 @@
-syntax = "proto3";
-
-package dog.v1;
-
-option go_package = "v1/animal/dog;dogpb";
-
-message Dog {
-  string breed = 1;
-}
