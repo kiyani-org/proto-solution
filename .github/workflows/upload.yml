@@ -72,7 +72,7 @@ jobs:
           VERSION: '${{ needs.store_proposed_proto_version.outputs.proposed_proto_version }}-${{ github.sha }}'
           GO_GEN_PROTOS_DIRECTORY: './gen/go'
         run: |-
-          gcloud artifacts go upload --verbosity=debug\
+          gcloud artifacts go upload --verbosity=debug \
           --module-path='${{ env.GO_MODULE_PATH }}' \
           --source=$GO_GEN_PROTOS_DIRECTORY \
           --project='${{ env.PROJECT_ID }}' \
