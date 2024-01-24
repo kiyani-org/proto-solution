@@ -67,7 +67,7 @@ jobs:
           
       - name: 'Upload to GAR (go)'
         run: |-
-          gcloud artifacts repositories list --project='${{ env.PROJECT_ID }}'-ID \
+          gcloud artifacts repositories list --project='${{ env.PROJECT_ID }}' \
           --location='${{ env.GO_GAR_REPOSITORY_LOCATION }}'
 
       - name: 'Upload to GAR (go)'
