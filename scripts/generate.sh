@@ -1,38 +1,5 @@
 #!/bin/bash
 
-function execute_protoc() {
-  dest_root_dir=$1
-  file_or_dir=$2
-  echo executing protoc command on $2
-  lang=$(basename "$dest_root_dir")
-  case $lang in
-    go)
-      protoc --go_out=$dest_root_dir $file_or_dir 
-      ;;
-    ts)
-      protoc --plugin=$dest_root_dir/node_modules/.bin/protoc-gen-ts_proto \
-             --ts_proto_out=$dest_root_dir \
-             --ts_proto_opt=outputServices=grpc-js \
-             --ts_proto_opt=esModuleInterop=true \
-             $file_or_dir 
-      ;;
-  esac
-}
-
-# Recursively loop through the current directory and its subdirectories
-function generate_protos_rec() {
-  for file_or_dir in "$1"/*; do
-    trimmed_path=${file_or_dir#$raw_protos_dir/}
-    if [ -f "$file_or_dir" ]; then
-      # Copy the file_or_dir to the new directory
-      execute_protoc $dest_root_dir $file_or_dir $2
-    elif [ -d "$file_or_dir" ]; then
-      # Recursively copy the contents of the subdirectory
-      generate_protos_rec "$file_or_dir" $2
-    fi
-  done
-}
-
 # go helpers
 
 function pre_gen_go {
@@ -74,19 +41,16 @@ function pre_gen_ts {
 }
 
 function main() {
-  # go protos
-  dest_root_dir=gen/go
-  pre_gen_go $dest_root_dir
-  generate_protos_rec $raw_protos_dir
-  post_gen_go $dest_root_dir
+  pre_gen_go gen/go
+  # pre_gen_ts gen/ts
 
-  # ts protos
-  dest_root_dir=gen/ts
-  pre_gen_ts $dest_root_dir
-  generate_protos_rec $raw_protos_dir
+  buf generate
+  if [ $? -ne 0 ]; then
+    echo "Failed buf generate"
+    exit 1
+  fi
+
+  post_gen_go gen/go
 }
-
-# Set the protos directory
-raw_protos_dir=protos
 
 main 
