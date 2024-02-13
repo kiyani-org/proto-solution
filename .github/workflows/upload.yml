@@ -13,9 +13,9 @@ concurrency:
 
 env:
   GO_VERSION: '1.21'
-  WIF_PROVIDER: 'projects/891125439796/locations/global/workloadIdentityPools/gh-automation-977ae9/providers/gh-automation-977ae9'
-  WIF_SERVICE_ACCOUNT: 'gh-automation-sa@shankiyani-dev-d736c9.iam.gserviceaccount.com'
-  PROJECT_ID: 'shankiyani-dev-d736c9'
+  WIF_PROVIDER: 'projects/shankiyani-dev-95/locations/global/workloadIdentityPools/github-automation/providers/gh-automation'
+  WIF_SERVICE_ACCOUNT: 'github-automation-bot@shankiyani-dev-95.iam.gserviceaccount.com'
+  PROJECT_ID: 'shankiyani-dev-95'
   GO_GAR_REPOSITORY_NAME: 'go-protos'
   GO_GAR_REPOSITORY_LOCATION: 'us-east1'
   GO_MODULE_PATH: 'github.com/kiyani-org/proto-solution'
@@ -27,22 +27,9 @@ jobs:
       contents: 'read'
       id-token: 'write'
 
-  store_proposed_proto_version:
-    runs-on: 'ubuntu-latest'
-    outputs:
-      proposed_proto_version: ${{ steps.capture.outputs.PROPOSED_PROTO_VERSION }}
-    steps:
-      - name: 'Checkout'
-        uses: 'actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744' # ratchet:actions/checkout@v3
-      - name: 'Capture proposed version'
-        id: "capture"
-        run: |
-          echo "PROPOSED_PROTO_VERSION=$(yq eval '.proto_version' version.yaml)" >> $GITHUB_OUTPUT
-
   deploy_go:
     needs:
       - 'ci'
-      - 'store_proposed_proto_version'
     runs-on: 'ubuntu-latest'
     steps:
       - name: 'Checkout'
