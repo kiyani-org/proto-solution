@@ -17,7 +17,7 @@ env:
   WIF_SERVICE_ACCOUNT: 'github-automation-bot@shankiyani-dev-95.iam.gserviceaccount.com'
   PROJECT_ID: 'shankiyani-dev-95'
   GO_GAR_REPOSITORY_NAME: 'go-protos'
-  GO_GAR_REPOSITORY_LOCATION: 'us-east1'
+  GO_GAR_REPOSITORY_LOCATION: 'us'
   GO_MODULE_PATH: 'github.com/kiyani-org/proto-solution'
 
 jobs:
