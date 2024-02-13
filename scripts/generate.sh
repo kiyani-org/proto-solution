@@ -1,8 +1,7 @@
 #!/bin/bash
 
-# go helpers
-
 function pre_gen_go {
+  echo "running pre_gen_go"
   # Create the new directory if it doesn't exist
   if [ ! -d $1 ]; then
     mkdir -p $1
@@ -17,33 +16,39 @@ function pre_gen_go {
   fi
 }
 
-function post_gen_go() {
+function post_gen_go {
+  echo "running post_gen_go"
   cd $1
   go mod tidy
   cd -
 }
 
-# es helpers
-
 function pre_gen_es {
+  echo "running pre_gen_es"
+
   # Create the new directory if it doesn't exist
   if [ ! -d $1 ]; then
     mkdir -p $1
   fi
+
+  # Check if package.json exists
+  if [ ! -f "$1/package.json" ]; then
+    cp ./perm/es/package.json $1
+  fi
+
+  if [ -f "$1/index.ts" ]; then
+    touch $1/index.ts
+  fi
 }
 
 function post_gen_es {
-  # Check if package.json exists
-  if [ ! -f "$1/package.json" ]; then
-    cp ./perm/package.json $1
-  fi
-
+  echo "running post_gen_es"
   cd $1
   npm i
   cd -
 }
 
-function main() {
+function main {
   pre_gen_go gen/go
   pre_gen_es gen/es
 
