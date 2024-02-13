@@ -13,7 +13,7 @@ concurrency:
 
 env:
   GO_VERSION: '1.21'
-  WIF_PROVIDER: 'projects/shankiyani-dev-95/locations/global/workloadIdentityPools/github-automation/providers/gh-automation'
+  WIF_PROVIDER: 'projects/537890254076/locations/global/workloadIdentityPools/github-automation/providers/gh-automation'
   WIF_SERVICE_ACCOUNT: 'github-automation-bot@shankiyani-dev-95.iam.gserviceaccount.com'
   PROJECT_ID: 'shankiyani-dev-95'
   GO_GAR_REPOSITORY_NAME: 'go-protos'
@@ -52,7 +52,7 @@ jobs:
         with:
           go-version: '${{ env.GO_VERSION }}'
           
-      - name: 'Upload to GAR (go)'
+      - name: 'List GAR repos (go)'
         run: |-
           gcloud artifacts repositories list --project='${{ env.PROJECT_ID }}' \
           --location='${{ env.GO_GAR_REPOSITORY_LOCATION }}'
