@@ -1,2 +1,2 @@
 generate:
-	chmod +x ./scripts/generate.sh && ./scripts/generate.sh
+	chmod +x ./scripts/generate.sh && ./scripts/generate.sh	

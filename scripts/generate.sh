@@ -23,18 +23,21 @@ function post_gen_go() {
   cd -
 }
 
-# ts helpers
+# es helpers
 
-function pre_gen_ts {
+function pre_gen_es {
   # Create the new directory if it doesn't exist
   if [ ! -d $1 ]; then
     mkdir -p $1
   fi
+}
 
+function post_gen_es {
   # Check if package.json exists
   if [ ! -f "$1/package.json" ]; then
-    cp perm/package.json $dest_root_dir
+    cp ./perm/package.json $1
   fi
+
   cd $1
   npm i
   cd -
@@ -42,7 +45,7 @@ function pre_gen_ts {
 
 function main() {
   pre_gen_go gen/go
-  # pre_gen_ts gen/ts
+  pre_gen_es gen/es
 
   buf generate
   if [ $? -ne 0 ]; then
@@ -51,6 +54,7 @@ function main() {
   fi
 
   post_gen_go gen/go
+  post_gen_es gen/es
 }
 
 main 
