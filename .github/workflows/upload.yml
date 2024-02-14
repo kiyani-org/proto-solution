@@ -2,7 +2,7 @@ name: 'upload'
 
 on:
   workflow_dispatch:
-  pull_request:
+  push:
     branches:
       - 'main'
 
@@ -12,16 +12,21 @@ permissions:
 
 concurrency:
   group: 'upload-${{ github.workflow }}-${{ github.head_ref || github.ref }}'
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 env:
-  GO_VERSION: '1.21'
+  PROJECT_ID: 'shankiyani-dev-95'
   WIF_PROVIDER: 'projects/537890254076/locations/global/workloadIdentityPools/github-automation/providers/gh-automation'
   WIF_SERVICE_ACCOUNT: 'github-automation-bot@shankiyani-dev-95.iam.gserviceaccount.com'
-  PROJECT_ID: 'shankiyani-dev-95'
+  
+  GO_VERSION: '1.21'
   GO_GAR_REPOSITORY_NAME: 'proto-go'
   GO_GAR_REPOSITORY_LOCATION: 'us'
   GO_MODULE_PATH: 'github.com/kiyani-org/proto-solution'
+  
+  NODE_VERSION: '20.11.0'
+  NODE_GAR_REPOSITORY_NAME: 'proto-node'
+  NODE_GAR_REPOSITORY_LOCATION: 'us-central1'
 
 jobs:
   ci:
@@ -36,7 +41,7 @@ jobs:
       proposed_proto_version: ${{ steps.capture.outputs.PROPOSED_PROTO_VERSION }}
     steps:
       - name: 'Checkout'
-        uses: 'actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744' # ratchet:actions/checkout@v3
+        uses: 'actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11' # ratchet:actions/checkout@v4
       - name: 'Capture proposed version'
         id: "capture"
         run: |
@@ -73,13 +78,13 @@ jobs:
         env:
           # version must be prefixed with vX.Y.Z https://cloud.google.com/artifact-registry/docs/go/store-go#package_and_upload_your_module
           # the sha suffix is easily associate a commit with a version.
-          VERSION: '${{ needs.store_proposed_proto_version.outputs.proposed_proto_version }}-${{ github.sha }}'
+          VERSION: 'v0.0.0-${{ github.sha }}'
           GO_GEN_PROTOS_DIRECTORY: './gen/go'
         run: |-
-          gcloud artifacts go upload --verbosity=debug \
+          gcloud artifacts go upload \
           --module-path=${{ env.GO_MODULE_PATH }} \
-          --source=$GO_GEN_PROTOS_DIRECTORY \
           --project=${{ env.PROJECT_ID }} \
           --location=${{ env.GO_GAR_REPOSITORY_LOCATION }} \
           --repository=${{ env.GO_GAR_REPOSITORY_NAME }} \
+          --source=$GO_GEN_PROTOS_DIRECTORY \
           --version=$VERSION
