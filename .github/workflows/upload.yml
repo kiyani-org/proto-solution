@@ -27,9 +27,22 @@ jobs:
       contents: 'read'
       id-token: 'write'
 
+  store_proposed_proto_version:
+    runs-on: 'ubuntu-latest'
+    outputs:
+      proposed_proto_version: ${{ steps.capture.outputs.PROPOSED_PROTO_VERSION }}
+    steps:
+      - name: 'Checkout'
+        uses: 'actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744' # ratchet:actions/checkout@v3
+      - name: 'Capture proposed version'
+        id: "capture"
+        run: |
+          echo "PROPOSED_PROTO_VERSION=$(yq eval '.proto_version' version.yaml)" >> $GITHUB_OUTPUT
+          
   deploy_go:
     needs:
       - 'ci'
+      - 'store_proposed_proto_version'
     runs-on: 'ubuntu-latest'
     steps:
       - name: 'Checkout'
