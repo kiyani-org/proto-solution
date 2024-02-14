@@ -69,7 +69,7 @@ jobs:
         with:
           go-version: '${{ env.GO_VERSION }}'
 
-      - name: 'Upload to GAR (go)'
+      - name: 'Upload to go GAR'
         env:
           # version must be prefixed with vX.Y.Z https://cloud.google.com/artifact-registry/docs/go/store-go#package_and_upload_your_module
           # the sha suffix is easily associate a commit with a version.
