@@ -1,8 +1,0 @@
-{
-  "name": "protos",
-  "version": "1.0.0",
-  "main": "index.ts",
-  "scripts": {
-    "artifactregistry-login": "npx google-artifactregistry-auth"
-  }
-}

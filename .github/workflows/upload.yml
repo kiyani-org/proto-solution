@@ -18,15 +18,12 @@ env:
   PROJECT_ID: 'shankiyani-dev-95'
   WIF_PROVIDER: 'projects/537890254076/locations/global/workloadIdentityPools/github-automation/providers/gh-automation'
   WIF_SERVICE_ACCOUNT: 'github-automation-bot@shankiyani-dev-95.iam.gserviceaccount.com'
-  
-  GO_VERSION: '1.21'
+
+  GO_VERSION: '1.21.1'
   GO_GAR_REPOSITORY_NAME: 'proto-go'
   GO_GAR_REPOSITORY_LOCATION: 'us'
   GO_MODULE_PATH: 'github.com/kiyani-org/proto-solution'
-  
-  NODE_VERSION: '20.11.0'
-  NODE_GAR_REPOSITORY_NAME: 'proto-node'
-  NODE_GAR_REPOSITORY_LOCATION: 'us-central1'
+  GO_GAR_PROTO_SEMVER_PREFIX: 'v0.0.0'
 
 jobs:
   ci:
@@ -35,22 +32,9 @@ jobs:
       contents: 'read'
       id-token: 'write'
 
-  store_proposed_proto_version:
-    runs-on: 'ubuntu-latest'
-    outputs:
-      proposed_proto_version: ${{ steps.capture.outputs.PROPOSED_PROTO_VERSION }}
-    steps:
-      - name: 'Checkout'
-        uses: 'actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11' # ratchet:actions/checkout@v4
-      - name: 'Capture proposed version'
-        id: "capture"
-        run: |
-          echo "PROPOSED_PROTO_VERSION=$(yq eval '.proto_version' version.yaml)" >> $GITHUB_OUTPUT
-          
   deploy_go:
     needs:
       - 'ci'
-      - 'store_proposed_proto_version'
     runs-on: 'ubuntu-latest'
     steps:
       - name: 'Checkout'
@@ -78,7 +62,7 @@ jobs:
         env:
           # version must be prefixed with vX.Y.Z https://cloud.google.com/artifact-registry/docs/go/store-go#package_and_upload_your_module
           # the sha suffix is easily associate a commit with a version.
-          VERSION: 'v0.0.0-${{ github.sha }}'
+          VERSION: '${{ env.GO_GAR_PROTO_SEMVER_PREFIX }}-${{ github.sha }}'
           GO_GEN_PROTOS_DIRECTORY: './gen/go'
         run: |-
           gcloud artifacts go upload \

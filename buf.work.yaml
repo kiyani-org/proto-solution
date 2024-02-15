@@ -1,5 +1,5 @@
 # Learn more https://buf.build/docs/configuration/v1/buf-work-yaml
-version: v1
+version: 'v1'
 
 directories:
-  - protos
+  - 'protos'
