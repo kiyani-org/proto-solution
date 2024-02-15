@@ -150,10 +150,9 @@ jobs:
                     
       - name: 'Run Break Check'
         shell: 'bash'
-          against: 'https://github.com/kiyani-org/proto-solution.git#branch=main,ref=HEAD~1'
           run: |
             set +e
-            BREAK_CHECK=$(buf lint)
+            BREAK_CHECK=$(buf breaking --against https://github.com/kiyani-org/proto-solution.git#branch=main,ref=HEAD~1)
             if ! [[ -z "${BREAK_CHECK}" ]]; then
               echo "::error::$BREAK_CHECK"
               exit 1
