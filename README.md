@@ -6,7 +6,7 @@
 
 # Generate protos
 
-Make changes to protos defined in the `protos` directory and run the script.
+Make changes to protos defined in the `protos` directory and run the script. This will generate the latest protos and write them to the gen folder. This must be done or the regenerate ci job will fail.
 
 ```
   make generate

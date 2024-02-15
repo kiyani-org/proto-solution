@@ -1,10 +1,10 @@
 # Learn more https://buf.build/docs/configuration/v1/buf-gen-yaml
-version: v1
+version: 'v1'
 
 managed:
   enabled: true
   go_package_prefix:
-    default: github.com/kiyani-org/proto-solution/gen/go
+    default: 'github.com/kiyani-org/proto-solution/gen/go'
 
 # remote plugins so you dont need to install locally
 plugins:
@@ -14,7 +14,3 @@ plugins:
   - plugin: 'buf.build/connectrpc/go:v1.14.0'
     out: 'gen/go'
     opt: 'paths=source_relative'
-  - plugin: 'buf.build/bufbuild/es:v1.7.1'
-    out: 'gen/es'
-  - plugin: 'buf.build/connectrpc/es:v1.3.0'
-    out: 'gen/es'
