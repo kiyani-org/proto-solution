@@ -18,15 +18,11 @@ env:
   PROJECT_ID: 'shankiyani-dev-95'
   WIF_PROVIDER: 'projects/537890254076/locations/global/workloadIdentityPools/github-automation/providers/gh-automation'
   WIF_SERVICE_ACCOUNT: 'github-automation-bot@shankiyani-dev-95.iam.gserviceaccount.com'
-  
-  GO_VERSION: '1.21'
+
+  GO_VERSION: '1.21.1'
   GO_GAR_REPOSITORY_NAME: 'proto-go'
   GO_GAR_REPOSITORY_LOCATION: 'us'
   GO_MODULE_PATH: 'github.com/kiyani-org/proto-solution'
-  
-  NODE_VERSION: '20.11.0'
-  NODE_GAR_REPOSITORY_NAME: 'proto-node'
-  NODE_GAR_REPOSITORY_LOCATION: 'us-central1'
 
 jobs:
   ci:
@@ -46,7 +42,7 @@ jobs:
         id: "capture"
         run: |
           echo "PROPOSED_PROTO_VERSION=$(yq eval '.proto_version' version.yaml)" >> $GITHUB_OUTPUT
-          
+
   deploy_go:
     needs:
       - 'ci'
@@ -82,9 +78,9 @@ jobs:
           GO_GEN_PROTOS_DIRECTORY: './gen/go'
         run: |-
           gcloud artifacts go upload \
-          --module-path=${{ env.GO_MODULE_PATH }} \
-          --project=${{ env.PROJECT_ID }} \
-          --location=${{ env.GO_GAR_REPOSITORY_LOCATION }} \
-          --repository=${{ env.GO_GAR_REPOSITORY_NAME }} \
+          --module-path='${{ env.GO_MODULE_PATH }}' \
+          --project='${{ env.PROJECT_ID }}' \
+          --location='${{ env.GO_GAR_REPOSITORY_LOCATION }}' \
+          --repository='${{ env.GO_GAR_REPOSITORY_NAME }}' \
           --source=$GO_GEN_PROTOS_DIRECTORY \
           --version=$VERSION
