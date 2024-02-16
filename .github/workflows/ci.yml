@@ -124,6 +124,7 @@ jobs:
           make generate
           DIFF=$(git status --porcelain)
           echo $DIFF
+          git diff
           if ! [[ -z "${DIFF}" ]]; then
             echo "::error::Files were not generated from latest proto changes, run make generate and push the latest changes."
             exit 1

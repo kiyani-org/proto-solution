@@ -2,7 +2,7 @@ name: 'upload'
 
 on:
   workflow_dispatch:
-  push:
+  pull_request:
     branches:
       - 'main'
 
@@ -24,6 +24,10 @@ env:
   GO_GAR_REPOSITORY_LOCATION: 'us'
   GO_MODULE_PATH: 'github.com/kiyani-org/proto-solution'
   GO_GAR_PROTO_SEMVER_PREFIX: 'v0.0.0'
+
+  NODE_VERSION: '20.11.1'
+  NODE_GAR_REPOSITORY_NAME: 'proto-node'
+  NODE_GAR_REPOSITORY_LOCATION: 'us-central1'
 
 jobs:
   ci:
@@ -72,3 +76,33 @@ jobs:
           --repository=${{ env.GO_GAR_REPOSITORY_NAME }} \
           --source=$GO_GEN_PROTOS_DIRECTORY \
           --version=$VERSION
+
+  deploy_npm:
+      needs:
+        - 'ci'
+      runs-on: 'ubuntu-latest'
+      permissions:
+        contents: 'read'
+        id-token: 'write'
+      steps:
+        - name: 'Checkout'
+          uses: 'actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11' # ratchet:actions/checkout@v4
+
+        - id: 'auth'
+          name: 'Authenticate to Google Cloud'
+          uses: 'google-github-actions/auth@3a3c4c57d294ef65efaaee4ff17b22fa88dd3c69' # ratchet:google-github-actions/auth@v1
+          with:
+            workload_identity_provider: '${{ env.WIF_PROVIDER }}'
+            service_account: '${{ env.WIF_SERVICE_ACCOUNT }}'
+            token_format: 'access_token'
+
+        - name: 'Setup node'
+          uses: 'actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8' # ratchet:actions/setup-node@v4
+          with:
+            node-version: '${{ env.NODE_VERSION }}'
+       
+        - name: 'Upload to Node GAR'
+          run: |-
+            cd gen/es
+            npm run artifactregistry-login
+            npm publish
