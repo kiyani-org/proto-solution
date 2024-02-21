@@ -23,7 +23,7 @@ env:
   GO_GAR_REPOSITORY_NAME: 'proto-go'
   GO_GAR_REPOSITORY_LOCATION: 'us'
   GO_MODULE_PATH: 'github.com/kiyani-org/proto-solution'
-  GO_GAR_PROTO_SEMVER_PREFIX: 'v0.0.0'
+  GO_GAR_PROTO_SEMVER_PREFIX: '0.0.0'
 
   NODE_VERSION: '20.11.1'
   NODE_GAR_REPOSITORY_NAME: 'proto-node'
@@ -66,7 +66,7 @@ jobs:
         env:
           # version must be prefixed with vX.Y.Z https://cloud.google.com/artifact-registry/docs/go/store-go#package_and_upload_your_module
           # the sha suffix is easily associate a commit with a version.
-          VERSION: '${{ env.GO_GAR_PROTO_SEMVER_PREFIX }}-${{ github.sha }}'
+          VERSION: 'v${{ env.GO_GAR_PROTO_SEMVER_PREFIX }}-${{ github.sha }}'
           GO_GEN_PROTOS_DIRECTORY: './gen/go'
         run: |-
           gcloud artifacts go upload \

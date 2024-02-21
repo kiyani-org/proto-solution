@@ -31,9 +31,25 @@ function pre_gen_es {
     mkdir -p $1
   fi
 
-  cp ./perm/es/package.json $1
-  cp ./perm/es/.npmrc $1
-  # touch $1/index.ts
+  # Configure package manager to use with npm
+  cat > $1/.npmrc << EOF
+@protos:registry=https://us-npm.pkg.dev/shankiyani-dev-95/proto-node/
+//us-npm.pkg.dev/shankiyani-dev-95/proto-node/:always-auth=true
+EOF
+  
+  # Create the package.json with appropriate version -- same version can never be published twice
+  cat > $1/package.json << EOF
+{ 
+  "name": "@protos/proto-node",
+  "version": "$PROTO_VERSION",
+  "main": "index.ts",
+  "scripts": {
+    "artifactregistry-login": "npx google-artifactregistry-auth --repo-config=\".npmrc\" --credential-config=\".npmrc\""
+  }
+}
+EOF
+
+  touch $1/index.ts
 }
 
 function post_gen_es {
