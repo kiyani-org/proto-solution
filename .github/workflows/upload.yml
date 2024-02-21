@@ -23,7 +23,6 @@ env:
   GO_GAR_REPOSITORY_NAME: 'proto-go'
   GO_GAR_REPOSITORY_LOCATION: 'us'
   GO_MODULE_PATH: 'github.com/kiyani-org/proto-solution'
-  GO_GAR_PROTO_SEMVER_PREFIX: '0.0.0'
 
   NODE_VERSION: '20.11.1'
   NODE_GAR_REPOSITORY_NAME: 'proto-node'
@@ -36,7 +35,7 @@ jobs:
       contents: 'read'
       id-token: 'write'
 
-  deploy_go:
+  create_artifact:
     needs:
       - 'ci'
     runs-on: 'ubuntu-latest'
@@ -44,6 +43,19 @@ jobs:
       - name: 'Checkout'
         uses: 'actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11' # ratchet:actions/checkout@v4
 
+      - uses: actions/upload-artifact@v4 # ratchet:actions/upload-artifact@v4
+        with:
+          name: '${{ needs.ci.outputs.proto_version }}-${{ github.sha }}'
+          path: 'gen'
+          if-no-files-found: 'error'
+          retention-days: 3
+
+  deploy_go:
+    needs:
+      - 'ci'
+      - 'create_artifact'
+    runs-on: 'ubuntu-latest'
+    steps:
       - id: 'auth'
         name: 'Authenticate to Google Cloud'
         uses: 'google-github-actions/auth@3a3c4c57d294ef65efaaee4ff17b22fa88dd3c69' # ratchet:google-github-actions/auth@v1
@@ -62,13 +74,21 @@ jobs:
         with:
           go-version: '${{ env.GO_VERSION }}'
 
+      - name: 'Download gen artifact'
+        uses: actions/download-artifact@v4  # ratchet:actions/download-artifact@v4
+        with:
+          path: 'gen'
+          pattern: '${{ needs.ci.outputs.proto_version }}-${{ github.sha }}'
+          merge-multiple: true
+
       - name: 'Upload to go GAR'
         env:
           # version must be prefixed with vX.Y.Z https://cloud.google.com/artifact-registry/docs/go/store-go#package_and_upload_your_module
           # the sha suffix is easily associate a commit with a version.
-          VERSION: 'v${{ env.GO_GAR_PROTO_SEMVER_PREFIX }}-${{ github.sha }}'
-          GO_GEN_PROTOS_DIRECTORY: './gen/go'
+          VERSION: 'v${{ needs.ci.outputs.proto_version }}-${{ github.sha }}'
+          GO_GEN_PROTOS_DIRECTORY: 'gen/go'
         run: |-
+          tree gen
           gcloud artifacts go upload \
           --module-path=${{ env.GO_MODULE_PATH }} \
           --project=${{ env.PROJECT_ID }} \
@@ -78,31 +98,35 @@ jobs:
           --version=$VERSION
 
   deploy_npm:
-      needs:
-        - 'ci'
-      runs-on: 'ubuntu-latest'
-      permissions:
-        contents: 'read'
-        id-token: 'write'
-      steps:
-        - name: 'Checkout'
-          uses: 'actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11' # ratchet:actions/checkout@v4
+    needs:
+      - 'ci'
+      - 'create_artifact'
+    runs-on: 'ubuntu-latest'
+    permissions:
+      contents: 'read'
+      id-token: 'write'
+    steps:
+      - name: 'Checkout'
+        uses: 'actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11' # ratchet:actions/checkout@v4
 
-        - id: 'auth'
-          name: 'Authenticate to Google Cloud'
-          uses: 'google-github-actions/auth@3a3c4c57d294ef65efaaee4ff17b22fa88dd3c69' # ratchet:google-github-actions/auth@v1
-          with:
-            workload_identity_provider: '${{ env.WIF_PROVIDER }}'
-            service_account: '${{ env.WIF_SERVICE_ACCOUNT }}'
-            token_format: 'access_token'
+      - id: 'auth'
+        name: 'Authenticate to Google Cloud'
+        uses: 'google-github-actions/auth@3a3c4c57d294ef65efaaee4ff17b22fa88dd3c69' # ratchet:google-github-actions/auth@v1
+        with:
+          workload_identity_provider: '${{ env.WIF_PROVIDER }}'
+          service_account: '${{ env.WIF_SERVICE_ACCOUNT }}'
+          token_format: 'access_token'
 
-        - name: 'Setup node'
-          uses: 'actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8' # ratchet:actions/setup-node@v4
-          with:
-            node-version: '${{ env.NODE_VERSION }}'
-       
-        - name: 'Upload to Node GAR'
-          run: |-
-            cd gen/es
-            npm run artifactregistry-login
-            npm publish
+      - name: 'Setup node'
+        uses: 'actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8' # ratchet:actions/setup-node@v4
+        with:
+          node-version: '${{ env.NODE_VERSION }}'
+      
+      - name: 'Upload to Node GAR'
+        env: 
+          VERSION: 'v${{ needs.ci.outputs.proto_version }}-${{ github.sha }}'
+          ES_GEN_PROTOS_DIRECTORY: './gen/es'
+        run: |-
+          cd $ES_GEN_PROTOS_DIRECTORY
+          npm run artifactregistry-login
+          npm publish

@@ -1,6 +1,7 @@
-generate:
+generate: validate-env-vars
 	chmod +x ./scripts/generate.sh && ./scripts/generate.sh
 
-hello:
-	HELLO=${HELLO}
-	chmod +x ./scripts/temp.sh && ./scripts/temp.sh
+validate-env-vars:
+ifndef PROTO_VERSION
+	$(error PROTO_VERSION is undefined)
+endif
