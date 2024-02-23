@@ -23,8 +23,8 @@ function post_gen_go {
   cd -
 }
 
-function pre_gen_es {
-  echo "running pre_gen_es"
+function pre_gen_node {
+  echo "running pre_gen_node"
 
   # Create the new directory if it doesn't exist
   if [ ! -d $1 ]; then
@@ -52,8 +52,8 @@ EOF
   touch $1/index.ts
 }
 
-function post_gen_es {
-  echo "running post_gen_es"
+function post_gen_node {
+  echo "running post_gen_node"
   cd $1
   npm i
   cd -
@@ -61,7 +61,7 @@ function post_gen_es {
 
 function main {
   pre_gen_go gen/go
-  pre_gen_es gen/es
+  pre_gen_node gen/node
 
   buf generate
   if [ $? -ne 0 ]; then
@@ -70,7 +70,7 @@ function main {
   fi
 
   post_gen_go gen/go
-  post_gen_es gen/es
+  post_gen_node gen/node
 }
 
 main 

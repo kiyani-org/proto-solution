@@ -15,6 +15,11 @@ concurrency:
   cancel-in-progress: false
 
 env:
+  PROTOBUF_VERSION: '24.3'
+  PROTOC_GEN_GO_VERSION: '1.31.0'
+  BUF_VERSION: '1.28.1'
+  BUF_CHECKSUM: '278dd19ef5e6a504bdda16faf1488451'
+
   PROJECT_ID: 'shankiyani-dev-95'
   WIF_PROVIDER: 'projects/537890254076/locations/global/workloadIdentityPools/github-automation/providers/gh-automation'
   WIF_SERVICE_ACCOUNT: 'github-automation-bot@shankiyani-dev-95.iam.gserviceaccount.com'
@@ -35,7 +40,7 @@ jobs:
       contents: 'read'
       id-token: 'write'
 
-  create_artifact:
+  create_artifacts:
     needs:
       - 'ci'
     runs-on: 'ubuntu-latest'
@@ -43,17 +48,69 @@ jobs:
       - name: 'Checkout'
         uses: 'actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11' # ratchet:actions/checkout@v4
 
-      - uses: actions/upload-artifact@v4 # ratchet:actions/upload-artifact@v4
+      - name: 'Setup Go'
+        uses: 'actions/setup-go@93397bea11091df50f3d7e59dc26a7711a8bcfbe' # ratchet:actions/setup-go@v4
         with:
-          name: '${{ needs.ci.outputs.proto_version }}-${{ github.sha }}'
-          path: 'gen'
+          go-version: '${{ env.GO_VERSION }}'
+
+      - name: 'Setup Buf CLI'
+        uses: 'abcxyz/pkg/.github/actions/setup-binary@main' # ratchet:abcxyz/pkg/.github/actions/setup-binary@main
+        with:
+          download_url: 'https://github.com/bufbuild/buf/releases/download/v${{ env.BUF_VERSION }}/buf-Linux-x86_64.tar.gz'
+          install_path: '${{ runner.temp }}/.buf'
+          binary_subpath: 'buf/bin/buf'
+          checksum: '${{ env.BUF_CHECKSUM }}'
+          cache_key: '${{ runner.os }}_${{ runner.arch }}_buf_${{ env.BUF_VERSION }}'
+          add_to_path: true
+
+      - name: 'Install protobuf'
+        uses: 'abcxyz/pkg/.github/actions/setup-binary@main' # ratchet:abcxyz/pkg/.github/actions/setup-binary@main
+        with:
+          download_url: 'https://github.com/protocolbuffers/protobuf/releases/download/v${{ env.PROTOBUF_VERSION }}/protoc-${{ env.PROTOBUF_VERSION }}-linux-x86_64.zip'
+          install_path: '${{ runner.temp }}/.protoc'
+          binary_subpath: '.'
+          checksum: 'fc793561283d9ea6813fb757ae54f1afea6770afcd930904bdf3e590910420aa'
+          cache_key: '${{ runner.os }}_${{ runner.arch }}_protoc_${{ env.PROTOBUF_VERSION }}'
+          add_to_path: true
+
+      - name: 'Install protoc-gen-go'
+        run: |
+          go install google.golang.org/protobuf/cmd/protoc-gen-go@v${{ env.PROTOC_GEN_GO_VERSION }}
+
+      - name: 'Run Generate'
+        env: 
+          PROTO_VERSION: '${{ needs.ci.outputs.proto_version }}-${{ github.sha }}' 
+        shell: 'bash'
+        run: |
+          set +e
+          make generate
+          DIFF=$(git status --porcelain)
+          echo $DIFF
+          if [[ -z "${DIFF}" ]]; then
+            echo "::error::Expected a diff but did not find one, proto version must be in semver format."
+            exit 1
+          fi
+
+      - name: 'Upload Go GitHub Artifact'
+        uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # ratchet:actions/upload-artifact@v4
+        with:
+          name: 'go-${{ needs.ci.outputs.proto_version }}-${{ github.sha }}'
+          path: './gen/go'
+          if-no-files-found: 'error'
+          retention-days: 3
+
+      - name: 'Upload Node GitHub Artifact'
+        uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # ratchet:actions/upload-artifact@v4
+        with:
+          name: 'node-${{ needs.ci.outputs.proto_version }}-${{ github.sha }}'
+          path: './gen/node'
           if-no-files-found: 'error'
           retention-days: 3
 
   deploy_go:
     needs:
       - 'ci'
-      - 'create_artifact'
+      - 'create_artifacts'
     runs-on: 'ubuntu-latest'
     steps:
       - id: 'auth'
@@ -74,11 +131,10 @@ jobs:
         with:
           go-version: '${{ env.GO_VERSION }}'
 
-      - name: 'Download gen artifact'
-        uses: actions/download-artifact@v4  # ratchet:actions/download-artifact@v4
+      - name: 'Download go artifact'
+        uses: actions/download-artifact@eaceaf801fd36c7dee90939fad912460b18a1ffe # ratchet:actions/download-artifact@v4
         with:
-          path: 'gen'
-          pattern: '${{ needs.ci.outputs.proto_version }}-${{ github.sha }}'
+          pattern: 'go-${{ needs.ci.outputs.proto_version }}-${{ github.sha }}'
           merge-multiple: true
 
       - name: 'Upload to go GAR'
@@ -86,9 +142,8 @@ jobs:
           # version must be prefixed with vX.Y.Z https://cloud.google.com/artifact-registry/docs/go/store-go#package_and_upload_your_module
           # the sha suffix is easily associate a commit with a version.
           VERSION: 'v${{ needs.ci.outputs.proto_version }}-${{ github.sha }}'
-          GO_GEN_PROTOS_DIRECTORY: 'gen/go'
+          GO_GEN_PROTOS_DIRECTORY: '.'
         run: |-
-          tree gen
           gcloud artifacts go upload \
           --module-path=${{ env.GO_MODULE_PATH }} \
           --project=${{ env.PROJECT_ID }} \
@@ -100,7 +155,7 @@ jobs:
   deploy_npm:
     needs:
       - 'ci'
-      - 'create_artifact'
+      - 'create_artifacts'
     runs-on: 'ubuntu-latest'
     permissions:
       contents: 'read'
@@ -117,16 +172,20 @@ jobs:
           service_account: '${{ env.WIF_SERVICE_ACCOUNT }}'
           token_format: 'access_token'
 
+      - name: 'Download node artifact'
+        uses: actions/download-artifact@eaceaf801fd36c7dee90939fad912460b18a1ffe # ratchet:actions/download-artifact@v4
+        with:
+          pattern: 'node-${{ needs.ci.outputs.proto_version }}-${{ github.sha }}'
+          merge-multiple: true
+
       - name: 'Setup node'
         uses: 'actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8' # ratchet:actions/setup-node@v4
         with:
           node-version: '${{ env.NODE_VERSION }}'
-      
+        
       - name: 'Upload to Node GAR'
         env: 
           VERSION: 'v${{ needs.ci.outputs.proto_version }}-${{ github.sha }}'
-          ES_GEN_PROTOS_DIRECTORY: './gen/es'
         run: |-
-          cd $ES_GEN_PROTOS_DIRECTORY
           npm run artifactregistry-login
           npm publish
