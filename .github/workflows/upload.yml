@@ -1,7 +1,7 @@
 name: 'upload'
 
 on:
-  pull_request:
+  push:
     branches:
       - 'main'
 
