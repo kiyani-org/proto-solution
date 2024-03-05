@@ -36,7 +36,7 @@ function pre_gen_node {
 @protos:registry=https://us-npm.pkg.dev/shankiyani-dev-95/proto-node/
 //us-npm.pkg.dev/shankiyani-dev-95/proto-node/:always-auth=true
 EOF
-  
+
   # Create the package.json with appropriate version -- same version can never be published twice
   cat > $1/package.json << EOF
 { 
@@ -48,8 +48,6 @@ EOF
   }
 }
 EOF
-
-  touch $1/index.ts
 }
 
 function post_gen_node {

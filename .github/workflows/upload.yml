@@ -75,7 +75,7 @@ jobs:
           fi
 
       - name: 'Upload Go GitHub Artifact'
-        uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # ratchet:actions/upload-artifact@v4
+        uses: 'actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3' # ratchet:actions/upload-artifact@v4
         with:
           name: 'go-${{ needs.ci.outputs.proto_version }}-${{ github.sha }}'
           path: './gen/go'
@@ -83,7 +83,7 @@ jobs:
           retention-days: 3
 
       - name: 'Upload Node GitHub Artifact'
-        uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # ratchet:actions/upload-artifact@v4
+        uses: 'actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3' # ratchet:actions/upload-artifact@v4
         with:
           name: 'node-${{ needs.ci.outputs.proto_version }}-${{ github.sha }}'
           path: './gen/node'
@@ -118,7 +118,7 @@ jobs:
           install_components: 'package-go-module'
 
       - name: 'Download go artifact'
-        uses: actions/download-artifact@87c55149d96e628cc2ef7e6fc2aab372015aec85 # ratchet:actions/download-artifact@v4
+        uses: 'actions/download-artifact@87c55149d96e628cc2ef7e6fc2aab372015aec85' # ratchet:actions/download-artifact@v4
         with:
           pattern: 'go-${{ needs.ci.outputs.proto_version }}-${{ github.sha }}'
           merge-multiple: true
@@ -164,7 +164,7 @@ jobs:
           token_format: 'access_token'
 
       - name: 'Download node artifact'
-        uses: actions/download-artifact@87c55149d96e628cc2ef7e6fc2aab372015aec85 # ratchet:actions/download-artifact@v4
+        uses: 'actions/download-artifact@87c55149d96e628cc2ef7e6fc2aab372015aec85' # ratchet:actions/download-artifact@v4
         with:
           pattern: 'node-${{ needs.ci.outputs.proto_version }}-${{ github.sha }}'
           merge-multiple: true
