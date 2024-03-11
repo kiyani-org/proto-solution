@@ -4,8 +4,8 @@ on:
   workflow_call:
     outputs:
       proto_version:
-        description: "The proposed proto version"
-        value: ${{ jobs.version.outputs.proposed_proto_version }}
+        description: 'The proposed proto version'
+        value: '${{ jobs.version.outputs.proposed_proto_version }}'
   pull_request:
     branches:
       - 'main'
@@ -27,12 +27,12 @@ jobs:
   version:
     runs-on: 'ubuntu-latest'
     outputs:
-      proposed_proto_version: ${{ steps.capture.outputs.PROPOSED_PROTO_VERSION }}
+      proposed_proto_version: '${{ steps.capture.outputs.PROPOSED_PROTO_VERSION }}'
     steps:
       - name: 'Checkout'
         uses: 'actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11' # ratchet:actions/checkout@v4
       - name: 'Capture proposed version'
-        id: "capture"
+        id: 'capture'
         run: |
           echo "PROPOSED_PROTO_VERSION=$(yq eval '.proto_version' version.yaml)" >> $GITHUB_OUTPUT
 
@@ -105,7 +105,7 @@ jobs:
           ref: '${{ github.event.pull_request.head.ref }}'
 
       - name: 'Setup Go'
-        uses: 'actions/setup-go@0c52d547c9bc32b1aa3301fd7a9cb496313a4491' # ratchet:actions/setup-go@v5
+        uses: 'actions/setup-go@93397bea11091df50f3d7e59dc26a7711a8bcfbe' # ratchet:actions/setup-go@v4
         with:
           go-version: '${{ env.GO_VERSION }}'
 
