@@ -8,7 +8,7 @@ import (
 	connect "connectrpc.com/connect"
 	context "context"
 	errors "errors"
-	v1 "github.com/kiyani-org/proto-solution/gen/go/pet/v1"
+	v1 "github.com/kiyani-org/proto-solution/pet/v1"
 	http "net/http"
 	strings "strings"
 )

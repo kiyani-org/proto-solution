@@ -20,6 +20,10 @@ function post_gen_go {
   echo "running post_gen_go"
   cd $1
   go mod tidy
+  if [ $? -ne 0 ]; then
+    echo "Failed go mod tidy"
+    exit 1
+  fi  
   cd -
 }
 
@@ -59,6 +63,10 @@ function post_gen_node {
   echo "running post_gen_node"
   cd $1
   npm i
+  if [ $? -ne 0 ]; then
+    echo "Failed npm install"
+    exit 1
+  fi
   cd -
 }
 
