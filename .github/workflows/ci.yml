@@ -34,7 +34,7 @@ jobs:
       - name: 'Capture proposed version'
         id: 'capture'
         run: |
-          echo "PROPOSED_PROTO_VERSION=$(yq eval '.proto_version' version.yaml)" >> $GITHUB_OUTPUT
+          echo "PROPOSED_PROTO_VERSION=$(cat VERSION.txt)" >> ${GITHUB_OUTPUT}
 
   upload_source_protos:
     runs-on: 'ubuntu-latest'
@@ -73,7 +73,6 @@ jobs:
       - name: 'Run Build'
         shell: 'bash'
         run: |
-          set -eEuo pipefail
           buf build
 
   lint:
@@ -98,7 +97,6 @@ jobs:
       - name: 'Run Lint'
         shell: 'bash'
         run: |
-          set -eEuo pipefail
           buf lint
 
   regenerate:
@@ -132,7 +130,6 @@ jobs:
           PROTO_VERSION: '${{ needs.version.outputs.proposed_proto_version }}'
         shell: 'bash'
         run: |
-          set -eEuo pipefail
           make generate
           git_status=$(git status --porcelain)
           echo ${git_status}
@@ -172,5 +169,4 @@ jobs:
       - name: 'Run Break Check'
         shell: 'bash'
         run: |
-          set -eEuo pipefail
           buf breaking --against ${{ runner.temp }}/.source
