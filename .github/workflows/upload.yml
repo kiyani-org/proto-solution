@@ -65,11 +65,11 @@ jobs:
           PROTO_VERSION: '${{ needs.ci.outputs.proto_version }}-${{ github.sha }}'
         shell: 'bash'
         run: |
-          set +e
+          set -eEuo pipefail
           make generate
-          DIFF=$(git status --porcelain)
-          echo $DIFF
-          if [[ -z "${DIFF}" ]]; then
+          git_status=$(git status --porcelain)
+          echo ${git_status}
+          if [[ -z "${git_status}" ]]; then
             echo "::error::Expected a diff but did not find one, proto version must be in semver format."
             exit 1
           fi
