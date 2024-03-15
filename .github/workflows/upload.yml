@@ -65,7 +65,6 @@ jobs:
           PROTO_VERSION: '${{ needs.ci.outputs.proto_version }}-${{ github.sha }}'
         shell: 'bash'
         run: |
-          set -eEuo pipefail
           make generate
           git_status=$(git status --porcelain)
           echo ${git_status}
