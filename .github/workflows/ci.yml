@@ -34,7 +34,7 @@ jobs:
       - name: 'Capture proposed version'
         id: 'capture'
         run: |
-          echo "PROPOSED_PROTO_VERSION=$(cat VERSION.txt)" >> ${GITHUB_OUTPUT}
+          echo "PROPOSED_PROTO_VERSION=$(cat VERSION)" >> ${GITHUB_OUTPUT}
 
   upload_source_protos:
     runs-on: 'ubuntu-latest'

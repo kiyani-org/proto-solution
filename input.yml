@@ -1,0 +1,21 @@
+{
+  github_org_name: 'kiyani-org',
+  github_repo_name: 'proto-solution',
+
+  project_id: 'shankiyani-dev-95',
+
+  go_version: '1.22.1',
+  go_gar_repository_name: 'proto-go',
+  go_gar_repository_location: 'us',
+
+  npm_scope: 'protos',
+  node_version: '20.11.1',
+  node_gar_repository_name: 'proto-node',
+  node_gar_repository_location: 'us-central1',
+
+  buf_version: '1.28.1',
+  buf_checksum: '278dd19ef5e6a504bdda16faf1488451',
+
+  wif_provider: 'projects/537890254076/locations/global/workloadIdentityPools/github-automation/providers/gh-automation',
+  wif_service_account: 'github-automation-bot@shankiyani-dev-95.iam.gserviceaccount.com',
+}

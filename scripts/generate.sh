@@ -27,7 +27,7 @@ function post_gen_go {
 function pre_gen_node {
   echo "running pre_gen_node"
 
-  PROTO_VERSION=${PROTO_VERSION:-$(cat VERSION.txt)}
+  PROTO_VERSION=${PROTO_VERSION:-$(cat VERSION)}
 
   # Create the new directory if it doesn't exist
   if [ ! -d $1 ]; then

@@ -134,8 +134,8 @@ jobs:
           --project=${{ env.PROJECT_ID }} \
           --location=${{ env.GO_GAR_REPOSITORY_LOCATION }} \
           --repository=${{ env.GO_GAR_REPOSITORY_NAME }} \
-          --source=$GO_GEN_PROTOS_DIRECTORY \
-          --version=$VERSION
+          --source=${GO_GEN_PROTOS_DIRECTORY} \
+          --version=${VERSION}
 
   deploy_npm:
     needs:
