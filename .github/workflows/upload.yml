@@ -69,8 +69,8 @@ jobs:
           make generate
           git_status=$(git status --porcelain)
           echo ${git_status}
-          if [[ -z "${git_status}" ]]; then
-            echo "::error::Expected a diff but did not find one, proto version must be in semver format."
+          if ! [[ -z "${git_status}" ]]; then
+            echo "::error::A diff was detected on this branch. Open a new pull request and ensure it succeeds the CI workflow and merge to retry."
             exit 1
           fi
 
