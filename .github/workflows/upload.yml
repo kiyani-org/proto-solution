@@ -70,7 +70,7 @@ jobs:
           git_status=$(git status --porcelain)
           echo ${git_status}
           if [[ -z "${git_status}" ]]; then
-            echo "::error::Expected a diff but did not find one."
+            echo "::error::Expected a diff but did not find one, proto version must be in semver format."
             exit 1
           fi
 
