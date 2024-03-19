@@ -28,7 +28,7 @@ env:
 
   NODE_VERSION: '20.11.1'
   NODE_GAR_REPOSITORY_NAME: 'proto-node'
-  NODE_GAR_REPOSITORY_LOCATION: 'us-central1'
+  NODE_GAR_REPOSITORY_LOCATION: 'us'
 
 jobs:
   ci:
@@ -42,6 +42,9 @@ jobs:
       - 'ci'
     runs-on: 'ubuntu-latest'
     steps:
+      - name: 'Checkout'
+        uses: 'actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11' # ratchet:actions/checkout@v4
+
       - name: 'Setup Go'
         uses: 'actions/setup-go@0c52d547c9bc32b1aa3301fd7a9cb496313a4491' # ratchet:actions/setup-go@v5
         with:
